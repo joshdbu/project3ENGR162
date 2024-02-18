@@ -70,8 +70,8 @@ class SmartMouse:
         else:
             options[3] -= 2
 
-        safeList = []
-        semiSafeList = []
+        safeList = [] # squares that GEARS hasn't gone yet
+        semiSafeList = [] # squares that GEARS has gone yet, but could go if no squares are unfamiliar
         maxIndex = 4
         maxNum = 1
         for i in range(0,4):
