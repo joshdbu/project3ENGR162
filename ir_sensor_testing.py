@@ -7,7 +7,7 @@ Created on Sun Feb 18 14:14:41 2024
 
 import time
 import grovepi
-from IR_Functions import *
+from IR_Sensor_Functions import *
 
 IR_setup(grovepi)
 
