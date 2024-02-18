@@ -1,6 +1,6 @@
 class Map:
     def __init__(j, intX, intY):
-        j.h = 5 # height of map
+        j.h = 6 # height of map
         j.w = 5 # width of map
         j.x = 6 # depth of map
         #j.mazeMap = np.zeros((j.h, j.w, j.x))
