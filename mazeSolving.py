@@ -10,7 +10,7 @@ jerry =  SmartMouse(testMap)
 careBot = Robot()
 
 careBot.turnDeg(50, 90)
-
+#careBot.getHeading()
 # numMove = 0
 # while tom.yPos < 5:
     
