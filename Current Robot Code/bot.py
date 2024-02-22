@@ -10,11 +10,16 @@ jerry =  SmartMouse(testMap)
 careBot = Robot()
 time.sleep(5) # gives time for gyro to calibrate
 
-# careBot.turnDeg(250, 90)
+#careBot.drive()
+#careBot.turnDeg(250, 90)
 careBot.gyroTurn(150, -45)
-#scareBot.getHeading()
+#careBot.driveStraightDist(100, 15)
+#careBot.getHeading()
 # careBot.moveForward(100)
 #careBot.getHeading()
+
+
+
 # numMove = 0
 # while tom.yPos < 5:
     
