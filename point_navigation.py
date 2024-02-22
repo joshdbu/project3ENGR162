@@ -9,10 +9,10 @@ import time
 from RobotClass import Robot
 careBot = Robot()
 
-pointOne = [15, 15]
-pointTwo = [15, 15]
-pointThree = [15,15]
-pointFour = [15,15]
+pointOne = [0, 2]
+pointTwo = [2, 2]
+pointThree = [2, 0]
+pointFour = [0, 0]
 sleepTime = 100
 sizeOfGridSqu = 40 # in cm
 
