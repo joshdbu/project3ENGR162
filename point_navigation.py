@@ -14,6 +14,9 @@ pointTwo = [15, 15]
 pointThree = [15,15]
 pointFour = [15,15]
 sleepTime = 100
+sizeOfGridSqu = 40 # in cm
+
+
 while True:
     [a,b] = pointOne
     [c,d] = pointTwo
@@ -37,22 +40,22 @@ while True:
     
     # To point one
     careBot.gyroTurn(100, degreeOne)
-    careBot.driveStraightDist(50, distOne)
+    careBot.driveStraightDist(50, sizeOfGridSqu * distOne)
     time.sleep(sleepTime)  # waits to allow for distance checking in POC
     
     
     # to point two
     careBot.gyroTurn(100, degreeTwo)
-    careBot.driveStraightDist(50, distTwo)
+    careBot.driveStraightDist(50, sizeOfGridSqu * distTwo)
     time.sleep(sleepTime)  # waits to allow for distance checking in POC
     
     # to point three
     careBot.gyroTurn(100, degreeThree)
-    careBot.driveStraightDist(50, distThree)
+    careBot.driveStraightDist(50, sizeOfGridSqu * distThree)
     time.sleep(sleepTime)  # waits to allow for distance checking in POC
     
     # to point four
     careBot.gyroTurn(100, degreeFour)
-    careBot.driveStraightDist(50, distFour)
+    careBot.driveStraightDist(50, sizeOfGridSqu * distFour)
     time.sleep(sleepTime)  # waits to allow for distance checking in POC
     
