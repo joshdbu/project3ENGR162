@@ -9,11 +9,11 @@ bp = BrickPi3()
 
 class Gyro:
     def __init__(self):
-        #self.port = port
-        # bp.reset_all()
+        
         bp.set_sensor_type(bp.PORT_3, bp.SENSOR_TYPE.EV3_GYRO_ABS_DPS)  # type: ignore
 
         self._heading = 0
+        self._pureHeading = 0
         self._offset = 0
 
     def heading(self):
@@ -22,15 +22,25 @@ class Gyro:
         except SensorError:
             pass
         else:
-            self._heading = int(remainder(raw, 360)) + self._offset
+            self._heading = int((abs(int(raw / 360)) * raw + raw)) - self._offset
 
         return self._heading
+    
+    def rawHeading(self):
+        try:
+            raw = bp.get_sensor(bp.PORT_3)[0]
+        except SensorError:
+            pass
+        else:
+            self._pureHeading = int((abs(int(raw / 360)) * raw + raw))
+        
+        return self._pureHeading
     
     def offset(self, value: int):
         self._offset = value
 
     def reset(self):
-        self.offset(-self.heading())
+        self.offset(self.rawHeading())
 
     def printHeading(self):
         print('{: <4}'.format(self.heading()), end="\r")
