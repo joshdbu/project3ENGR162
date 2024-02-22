@@ -31,7 +31,7 @@ while True:
         careBot.gyroTurn(180, 90)
         careBot.driveStraightDist(newRadius)
         careBot.gyroTurn(180, 90)
-        careBot.DriveStraightDist(newRadius)
+        careBot.driveStraightDist(newRadius)
         careBot.gyroTurn(180, -90)
         careBot.driveToPoint(point)
         
