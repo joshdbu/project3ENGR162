@@ -2,6 +2,11 @@ from MPU9250 import MPU9250
 import sys
 import time
 
+
+# Uncomment print(accel) and print(gyro) to get data for accel and gyro 
+# right now, just reads magnet sensor data
+
+
 # This sample code reads the data from the acceleration, gyro, and magnetic
 # sensors, breaks each into their components, and prints one of the results
 # to the screen.
