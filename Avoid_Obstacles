@@ -80,7 +80,7 @@ try:
             #-----------------------------------------------------------------------------------------------------
             
             careBot.driveStraightDist(newRadius)
-            careBot.gyroTurn(200, -90)
+            careBot.gyroTurn(100, -90)
 
             horizontalDist += (newRadius * 2) # Add amount of horizontal distance covered while avoiding obstacle
             
