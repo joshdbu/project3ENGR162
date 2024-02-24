@@ -5,11 +5,14 @@ Created on Thu Feb 22 13:05:59 2024
 @author: Elizabeth
 """
 
-import brickpi3 
-import ir_sensor_readings  # gets IR values
+import brickpi3
+import grovepi
+
+import IR_Sensor_Functions # gets IR values
 from RobotClass import Robot
 from MPU9250 import MPU9250
 import math
+import time
 
 # Initialize the MPU9250 library
 mpu9250 = MPU9250()
@@ -17,6 +20,7 @@ mpu9250 = MPU9250()
 BP = brickpi3.BrickPi3()
 careBot = Robot()
 
+time.sleep(5)
 # Reset encoders to 0
 BP.offset_motor_encoder(BP.PORT_B, BP.get_motor_encoder(BP.PORT_B))
 BP.offset_motor_encoder(BP.PORT_C, BP.get_motor_encoder(BP.PORT_C))
@@ -26,6 +30,7 @@ point = [200, 150] # point to drive to
 [x, y] = point
 pointDist = math.sqrt(x ** 2 + y ** 2) # distance to the point
 newRadius = radius + 1.5 # gives extra room for error when going around obs.
+speed = 200 # speed for driving
 
 # Calculate angle to reach final point. Turn robot to face that direction.
 angle = math.degrees(math.atan(y / x))
@@ -38,21 +43,25 @@ rawDist = 0 # Tracks total distance according to motor encoder
 try:
     # Continue looping while the distance traveled in direction of point is less than the calculatd distance to point
     while totalDist < pointDist:
-        [sensor_1, sensor_2] = ir_sensor_readings()  # gets values of IR sensor
-        [x, y, z] = mpu9250.readMagnet() # magnet sensor values
+        [sensor_1, sensor_2] = IR_Sensor_Functions.IR_Read(grovepi) # gets values of IR sensor
+        [xMag, y, z] = mpu9250.readMagnet() # magnet sensor values
+        
         avgSensorVal = (sensor_1 + sensor_2) / 2 # finds avg value of IR sensors
         avgSensorDist = (avgSensorVal - 163) / -2.76 # distance from IR beacon in cm
-        magDistance = -4.581 * math.log(x) + 30.833 # distance from magnet in cm
+        
+        magDistance = -4.581 * math.log(abs(xMag)) + 30.833 # distance from magnet in cm
+        BP.set_motor_dps(BP.PORT_B, speed)
+        BP.set_motor_dps(BP.PORT_C, speed)
 
         # Drive around obstacle if distance calculated to either type of obstacle is less than radius
-        if ((avgSensorDist <= newRadius) || (magDistance <= newRadius)):
+        if ((avgSensorDist <= newRadius) | (magDistance >= newRadius)):
             print("within radius")
 
             # Drive around obstacle
             careBot.gyroTurn(200, -90)
-            careBot.driveStraightDist(newRadius)
+            careBot.driveStraightDist(200, newRadius)
             careBot.gyroTurn(200, 90)
-            careBot.driveStraightDist(2 * newRadius)
+            careBot.driveStraightDist(200, 2 * newRadius)
             careBot.gyroTurn(200, 90)
 
             #------------ This part is optional feel free to get rid of it if it's too complicated ----------------
@@ -63,15 +72,16 @@ try:
             # Maxes out at driving an additional distance = radius in case of errors.
             count = 0
             while count < 4:
-                [sensor_1, sensor_2] = ir_sensor_readings()  # gets values of IR sensor
-                [x, y, z] = mpu9250.readMagnet() # magnet sensor values
+                [sensor_1, sensor_2] = IR_Sensor_Functions.IR_Read(grovepi) # gets values of IR sensor
+                [xMag, y, z] = mpu9250.readMagnet() # magnet sensor value
+                
                 avgSensorVal = (sensor_1 + sensor_2) / 2 # finds avg value of IR sensors
                 avgSensorDist = (avgSensorVal - 163) / -2.76 # distance from IR beacon in cm
-                magDistance = -4.581 * math.log(x) + 30.833 # distance from magnet in cm
+                magDistance = -4.581 * math.log(abs(xMag)) + 30.833 # distance from magnet in cm
 
-                if ((avgSensorDist <= newRadius) || (magDistance <= newRadius)):
+                if ((avgSensorDist <= newRadius) | (magDistance <= newRadius)):
                     careBot.gyroTurn(200, -90)
-                    careBot.driveStraightDist(newRadius / 4)
+                    careBot.driveStraightDist(200, newRadius / 4)
                     careBot.gyroTurn(200, 90)
                 else:
                     count =  4 # end loop if past obstacle
@@ -79,7 +89,7 @@ try:
 
             #-----------------------------------------------------------------------------------------------------
             
-            careBot.driveStraightDist(newRadius)
+            careBot.driveStraightDist(200, newRadius)
             careBot.gyroTurn(100, -90)
 
             horizontalDist += (newRadius * 2) # Add amount of horizontal distance covered while avoiding obstacle
@@ -90,7 +100,9 @@ try:
 
         avgEncoder = (BP.get_motor_encoder(BP.PORT_B) + BP.get_motor_encoder(BP.PORT_C)) / 2 # average encoder value of each motor
         rawDist = avgEncoder * 4.3 * math.pi # theoretical based on circumference could need slight adjustment
-        totalDist = rawDist - horizontalDist 
+        totalDist = rawDist - horizontalDist
+        print(totalDist)
+        print(rawDist)
         time.sleep(0.02)
     
 except KeyboardInterrupt:
