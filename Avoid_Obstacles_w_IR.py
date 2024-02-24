@@ -23,14 +23,18 @@ BP.offset_motor_encoder(BP.PORT_C, BP.get_motor_encoder(BP.PORT_C))
 radius = 10; # given radius to avoid in cm
 point = [200, 150] # point to drive to
 [x, y] = point
+pointDist = math.sqrt(x ** 2 + y ** 2)
 newRadius = radius + 1.5 # gives extra room for error when going around obs.
 
 # Calculate angle to reach final point. Turn robot in that direction
 angle = math.degrees(math.atan(y / x))
 careBot.gyroTurn(200, angle)
 
+horizontalDist = 0 # Tracks distance traveled horizontally to subtract from encoder value
+totalDist = 0 # Tracks total distance in direction of point
+
 try:
-    while True:
+    while totalDist < pointDist:
         [sensor_1, sensor_2] = ir_sensor_readings()  # gets values of IR sensor
         [x, y, z] = mpu9250.readMagnet()
         avgSensorVal = (sensor_1 + sensor_2) / 2 # finds avg value of IR sensors
@@ -47,7 +51,7 @@ try:
             careBot.driveStraightDist(2 * newRadius)
             careBot.gyroTurn(200, 90)
     
-            # Before driving back to line, check to make sure obstacle has been passed.
+            # Before driving back to line, turn and check to make sure obstacle has been passed.
             # Maxes out at driving an additional distance '1.5 * radius' to prevent errors.
             count = 0
             while ((avgSensorDist <= newRadius) || (magDistance <= newRadius)) && (count < 3):
@@ -58,10 +62,14 @@ try:
             
             careBot.driveStraightDist(newRadius)
             careBot.gyroTurn(200, -90)
+
+            horizontalDist += (newRadius * 2)
             
-        else:     # drives to point when no obstacle is detected
+        else:     # drives forward when no obstacle is detected
             print("not within radius")
             careBot.moveForward(200)
+
+        totalDist = BP.get_motor_encoder(BP.PORT_C) - horizontalDist
         time.sleep(0.02)
     
 except KeyboardInterrupt:
