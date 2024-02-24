@@ -63,7 +63,7 @@ try:
             # Maxes out at driving an additional distance = radius in case of errors.
             count = 0
             while count < 4:
-                sensor_1, sensor_2] = ir_sensor_readings()  # gets values of IR sensor
+                [sensor_1, sensor_2] = ir_sensor_readings()  # gets values of IR sensor
                 [x, y, z] = mpu9250.readMagnet() # magnet sensor values
                 avgSensorVal = (sensor_1 + sensor_2) / 2 # finds avg value of IR sensors
                 avgSensorDist = (avgSensorVal - 163) / -2.76 # distance from IR beacon in cm
