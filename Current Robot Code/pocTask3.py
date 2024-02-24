@@ -10,7 +10,8 @@ pointTwo = [2, 2]
 pointThree = [2, 0]
 pointFour = [0, 0]
 pointFive = [1,1]
-sleepTime = 3
+pointSix = [0,0]
+sleepTime = 5
 size = 10 # in cm
 
 
@@ -20,6 +21,7 @@ size = 10 # in cm
 [e,f] = pointThree
 [g,h] = pointFour
 [i,j] = pointFive
+[k,l] = pointSix
 
 
 
@@ -76,4 +78,14 @@ if(i != g):
 careBot.gyroTurn(100, 90)
 
 time.sleep(sleepTime)
-   
+
+# to point six
+if(l != j):
+    careBot.driveStraightDist(200, size * (l - j))
+
+careBot.gyroTurn(100, -90)
+
+if(k != i):
+    careBot.driveStraightDist(200, size * (k - i))
+
+careBot.gyroTurn(100, 90)

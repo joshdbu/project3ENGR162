@@ -31,4 +31,3 @@ class GroveUltra:
         print('{: <10}'.format(self.getDistance()), end="\r")
         time.sleep(0.02)
     
-    
