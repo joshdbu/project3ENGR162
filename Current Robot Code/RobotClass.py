@@ -12,8 +12,15 @@ BP.reset_all()
 class Robot:
     def __init__(self):
         
+        self.frontUltraPort = 5
+        self.leftFrontUP = 6
+        self.leftBackUP = 7
+
         self.gyro = Gyro()
-        self.frontUltra = GroveUltra(5)
+        self.frontUltra = GroveUltra(self.frontUltraPort)
+        self.frontLeftUltra = GroveUltra(self.leftFrontUP)
+        self.backLeftUltra = GroveUltra(self.leftBackUltra)
+
         self.heading = self.gyro.heading()
         self.wheelDia = 4.07 
 
@@ -167,11 +174,34 @@ class Robot:
                 self.frontUltra.printDistance()
         except KeyboardInterrupt:
             BP.reset_all()
+            
+    def squareUp(self, speed):
+        # squares up robot on right wall and resets gyro
+        try:
+            gain = 10
+            while True:
+                if abs(self.frontLeftUltra.getDistance() - self.backLeftUltra.getDistance()) < 2:
+                    break
+                currentOffset = self.frontLeftUltra.getDistance() - self.backLeftUltra.getDistance()
+                
+                BP.set_motor_dps(BP.PORT_B, speed * (currentOffset / abs(currentOffset)))
+                BP.set_motor_dps(BP.PORT_C, speed * (currentOffset / abs(currentOffset)))
 
-    # def updateHeading(self):
+            start = time.perf_counter()
+            while (time.perf_counter() - start) < 3:
+                
+                currentOffset = self.frontLeftUltra.getDistance() - self.backLeftUltra.getDistance()
+                
+                BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
+                BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)
+             
+            self.gyro.reset() 
+        
+        except KeyboardInterrupt:
+            BP.reset_all()
 
-    #     try:
-    #         self.heading = self.gyro.heading()
-    #     except KeyboardInterrupt:
-    #         BP.reset_all()
+        
+
+
+
 
