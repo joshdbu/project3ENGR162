@@ -258,9 +258,19 @@ class MPU9250:
                 x = round(x * self.mres * self.magXcoef, 3)
                 y = round(y * self.mres * self.magYcoef, 3)
                 z = round(z * self.mres * self.magZcoef, 3)
-
+        
         return {x, y, z}
-
+        
+    def readMagnetAccurate(self):
+        total = 0
+        for i in range (0,9)
+            [x,y,z] = self.readMagnet()
+            total += x
+        total /= 10
+    return {total}      
+        
+    
+        
     ## Read temperature
     #  @param [out] temperature temperature(degrees C)
     def readTemperature(self):
