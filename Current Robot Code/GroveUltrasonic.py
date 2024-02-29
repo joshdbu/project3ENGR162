@@ -17,6 +17,8 @@ class GroveUltra:
         for i in range(0,10):
             try:
                 raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
+                if raw > 200:
+                    pass
             except Exception:
                 pass
             else:
@@ -28,6 +30,7 @@ class GroveUltra:
         return self._dist
     
     def printDistance(self):
-        print('{: <10}'.format(self.getDistance()), end="\r")
+        print(self.getDistance())
+        # print('{: <10}'.format(self.getDistance()), end="\r")
         time.sleep(0.02)
     

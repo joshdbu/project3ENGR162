@@ -10,22 +10,21 @@ bp = BrickPi3()
 class EV3Ultra:
     def __init__(self):
         
-        bp.set_sensor_type(bp.PORT_3, bp.SENSOR_TYPE.EV3_ULTRASONIC_CM)  # type: ignore
+        bp.set_sensor_type(bp.PORT_1, bp.SENSOR_TYPE.EV3_ULTRASONIC_CM)  # type: ignore
 
         self._distance = 0
         self._offset = 0
 
     def distance(self):
         try:
-            raw = bp.get_sensor(bp.PORT_1)[0]
+            self._distance = bp.get_sensor(bp.PORT_1)
+            
         except SensorError:
             pass
-        else:
-            self._heading = int(remainder(raw, 360)) + self._offset
 
-        return self._heading
+        return self._distance
 
-    def avgDist(self):
+    def getDistance(self):
         sum = []
         for i in range(1,6):
             sum.append(self.distance())
