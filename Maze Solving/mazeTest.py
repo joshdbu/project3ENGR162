@@ -10,13 +10,19 @@ jerry =  SmartMouse(2, 0, 7, 5, 6)
 jerryMoves = []
 jerryPaths = []
 
-for i in range(0,100):
+for i in range(0,1):
     jerryMove, jerryPath = jerry.solveMaze(testMap)
     jerryMoves.append(jerryMove)
     jerryPaths.append(jerryPath)
     jerry.reset()
 
 minIndex = jerryMoves.index(min(jerryMoves))
+
+for row in jerryPaths[0]:
+    for value in row:
+        print(value, end=' ')
+    print()  # Add a newline after each row
+print("jerry took", jerryMoves[0], "turns")
 
 for row in jerryPaths[minIndex]:
     for value in row:

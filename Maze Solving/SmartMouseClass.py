@@ -12,37 +12,57 @@ class SmartMouse:
         self.height = h
         self.width = w
         self.depth = d
+        self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
         
         
-    def moveUp(self):
-        self.oldY = self.yPos
-        self.oldX = self.xPos
-        self.yPos -= 1
-        self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
+    # def moveUp(self):
+    #     self.oldY = self.yPos
+    #     self.oldX = self.xPos
+    #     self.yPos -= 1
+    #     self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         
-    def moveDown(self):
-        self.oldY = self.yPos
-        self.oldX = self.xPos
-        self.yPos += 1
-        self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
+    # def moveDown(self):
+    #     self.oldY = self.yPos
+    #     self.oldX = self.xPos
+    #     self.yPos += 1
+    #     self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         
-    def moveLeft(self):
-        self.oldY = self.yPos
-        self.oldX = self.xPos
-        self.xPos -= 1
-        self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
+    # def moveLeft(self):
+    #     self.oldY = self.yPos
+    #     self.oldX = self.xPos
+    #     self.xPos -= 1
+    #     self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         
-    def moveRight(self):
-        self.oldY = self.yPos
-        self.oldX = self.xPos
-        self.xPos += 1
-        self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
+    # def moveRight(self):
+    #     self.oldY = self.yPos
+    #     self.oldX = self.xPos
+    #     self.xPos += 1
+    #     self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         
-    def move(self,j):
+    # def move(self,j):
         
-        data = Map.surround(j, self.yPos, self.xPos) #pulls surrounding data from map example, replace with robot function in future
+    #     data = Map.surround(j, self.yPos, self.xPos) #pulls surrounding data from map example, replace with robot function in future
         
+
+    #     path = self.decidePath(data)
+
+    #     if len(path) > 1:
+    #         choice = path[r.randint(0,len(path) - 1)]
+    #     else:
+    #         choice = path[0]
+        
+    #     if choice == 0:
+    #         self.moveLeft()
+    #     elif choice == 1:
+    #         self.moveUp()
+    #     elif choice == 2:
+    #         self.moveRight()
+    #     elif choice == 3:
+    #         self.moveDown()        
+
+    def move(self, j):
+        data = Map.surround(j, self.yPos, self.xPos)
 
         path = self.decidePath(data)
 
@@ -51,15 +71,43 @@ class SmartMouse:
         else:
             choice = path[0]
         
-        if choice == 0:
-            self.moveLeft()
-        elif choice == 1:
-            self.moveUp()
-        elif choice == 2:
-            self.moveRight()
-        elif choice == 3:
-            self.moveDown()        
+        if self.heading == choice:
+            self.drive()
+        elif self.heading - 1 == choice:
+            self.heading = choice
+            # robot turn left 90
+            self.drive()
+        elif self.heading + 1 == choice:
+            self.heading = choice
+            # robot turn right 90
+            self.drive()
+        else:
+            self.heading = choice
+            # robot turn 180
+            self.drive()
+        
 
+
+    
+    def drive(self):
+        self.oldY = self.yPos
+        self.oldX = self.xPos
+        
+        if self.heading == 0:    
+            self.xPos -= 1
+        elif self.heading == 1:
+            self.yPos -= 1
+        elif self.heading == 2:
+            self.xPos += 1
+        elif self.heading == 3:
+            self.yPos += 1
+
+        self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
+
+            
+
+    
+            
         
 
     def decidePath(self, data):
@@ -138,10 +186,11 @@ class SmartMouse:
         move = 1
         
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
-        self.moveDown() # moves into maze
+        self.drive() # moves into maze
         while self.yPos < self.height - 1:
             self.move(j)
             move += 1
+            print("x Pos:", self.xPos, "Y Pos:", self.yPos)
         path = [[row[4] for row in column] for column in self.mouseMap]
         path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
         
