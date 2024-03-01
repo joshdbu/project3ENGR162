@@ -29,13 +29,25 @@ class Map:
                     [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
                     ]
         
-    def surround(j, xCord, yCord):
-        out = j.practiceMap[xCord][yCord]
+    def surround(j, yCord, xCord, heading):
+        walls = j.practiceMap[yCord][xCord]
+
+        out = [0, 0, 0, 0]
+        if heading == 0:
+            out = [walls[1], walls[2], walls[3], walls[0]]
+        elif heading == 2:
+            out = [walls[3], walls[0], walls[1], walls[2]]
+        elif heading ==3:
+            out = [walls[2], walls[3], walls[0], walls[1]]
+        else:
+            out = walls
+
+
         return out
-    def explore(j, xCord, yCord):
+    # def explore(j, xCord, yCord):
         
-        out = j.practiceMap[xCord][yCord]
-        out.append(0)
-        out.append(0)
-        return out
+    #     out = j.practiceMap[xCord][yCord]
+    #     out.append(0)
+    #     out.append(0)
+    #     return out
     

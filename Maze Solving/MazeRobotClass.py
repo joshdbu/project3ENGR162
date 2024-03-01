@@ -1,10 +1,9 @@
 import numpy as np
 import random as r
 from MapClass import Map
+from RobotClass import Robot
 
-# smartMouse can only make surround function calls to map class
-
-class SmartMouse:
+class MazeRobot:
     def __init__(self, x, y, h, w, d):
         
         self.xPos, self.startX, self.oldX = x, x, x
@@ -12,17 +11,20 @@ class SmartMouse:
         self.height = h
         self.width = w
         self.depth = d
+        
+        
+        self.moveDist = 40 # cell distance
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
+        self.robot = Robot()
         
-        
-    def move(self, j):
-        self.mapUpdate(j)
+            
 
-        data = self.mouseMap[self.yPos, self.xPos, 0:4]
+    def move(self, j):
+        data = Map.surround(j, self.yPos, self.xPos)
 
         path = self.decidePath(data)
-        print("path is", path, "\n")
+
         if len(path) > 1:
             choice = path[r.randint(0,len(path) - 1)]
         else:
@@ -30,6 +32,7 @@ class SmartMouse:
         
         if self.heading == choice:
             self.drive()
+            # self.robot.driveStraightUntil()
         elif self.heading - 1 == choice:
             self.heading = choice
             # robot turn left 90
@@ -141,13 +144,11 @@ class SmartMouse:
     
     def solveMaze(self, j):
         move = 1
-        print("x Pos:", self.xPos, "Y Pos:", self.yPos)
+        
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         self.drive() # moves into maze
-        #while move < 25:
         while self.yPos < self.height - 1:
             self.move(j)
-            
             move += 1
             print("x Pos:", self.xPos, "Y Pos:", self.yPos)
         path = [[row[4] for row in column] for column in self.mouseMap]
@@ -159,18 +160,3 @@ class SmartMouse:
         self.xPos, self.oldX = self.startX, self.startX
         self.yPos, self.oldY = self.startY, self.startY
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
-
-    def mapUpdate(self, j):
-        walls = Map.surround(j, self.xPos, self.yPos, self.heading)
-        out = [0, 0, 0, 0]
-        if self.heading == 0:
-            out = [walls[1], walls[2], walls[3], walls[0]]
-        elif self.heading == 2:
-            out = [walls[3], walls[0], walls[1], walls[2]]
-        elif self.heading ==3:
-            out = [walls[2], walls[3], walls[0], walls[1]]
-        else:
-            out = walls
-
-        for i in range(0,4):
-            self.mouseMap[self.yPos, self.xPos, i] = walls[i]
