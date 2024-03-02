@@ -1,10 +1,10 @@
 import numpy as np
 import random as r
 from MapClass import Map
+from RobotClass import Robot
 
-# smartMouse can only make surround function calls to map class
 
-class SmartMouse:
+class MazeRobot:
     def __init__(self, x, y, h, w, d):
         
         self.xPos, self.startX, self.oldX = x, x, x
@@ -15,13 +15,17 @@ class SmartMouse:
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
         self.favorList = [3, 0, 2, 1] # ranked list of favorite paths, rn down, right, left, up
+
+        self.careBot = Robot()
         
         
-    def move(self, j):
+    def move(self):
         
-        self.mapUpdate(j)
+        self.mapUpdate()
         data = self.mouseMap[self.yPos, self.xPos, 0:4]
         path = self.decidePath(data)
+        print("path is", path)
+        print("heading is", self.heading)
         if len(path) > 1:
             for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
                 if self.favorList[i] in path:
@@ -31,16 +35,31 @@ class SmartMouse:
         
         if self.heading == choice:
             self.drive()
+            self.careBot.driveStraightUntil(100, 10, 1)
+            print("going straight")
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
             self.heading = choice
+            print("turning left")
+            self.careBot.turnDeg(100, 90)
+            print("going straight")
+            self.careBot.driveStraightUntil(100, 10, 1)
+            
             # robot turn left 90
             self.drive()
         elif (self.heading + 1 == choice) | (self.heading - 3 == choice):
             self.heading = choice
+            self.careBot.turnDeg(100, -90)
+            print("turning right")
+            self.careBot.driveStraightUntil(100, 10, 1)
+            print("going straight")
             # robot turn right 90
             self.drive()
         else:
             self.heading = choice
+            self.careBot.turnDeg(100, 180)
+            print("turning aorund")
+            self.careBot.driveStraightUntil(100, 10, 1)
+            print("turning right")
             # robot turn 180
             self.drive()
         
@@ -129,13 +148,14 @@ class SmartMouse:
 
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
 
-    def solveMaze(self, j):
+    def solveMaze(self):
         move = 1
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         self.drive() # moves into maze
+        self.careBot.driveStraightUntil(100, 10, 1)
         while self.yPos < self.height - 1:
             
-            self.move(j)
+            self.move()
             # print("at", self.oldX, " ", self.oldY, "I see", self.mouseMap[self.yPos, self.xPos, 0:4])
             move += 1
         path = [[row[4] for row in column] for column in self.mouseMap]
@@ -144,8 +164,8 @@ class SmartMouse:
         return move, path
     
     
-    def mapUpdate(self, j):
-        walls = Map.surround(j, self.yPos, self.xPos, self.heading)
+    def mapUpdate(self):
+        walls = self.careBot.explore()
         out = [0, 0, 0, 0]
         if self.heading == 0:
             out = [walls[1], walls[2], walls[3], walls[0]]
