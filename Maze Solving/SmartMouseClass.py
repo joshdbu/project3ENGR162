@@ -14,70 +14,28 @@ class SmartMouse:
         self.depth = d
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
+        self.favorList = [3, 0, 2, 1] # ranked list of favorite paths, rn down, right, left, up
         
         
-    # def moveUp(self):
-    #     self.oldY = self.yPos
-    #     self.oldX = self.xPos
-    #     self.yPos -= 1
-    #     self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
-        
-    # def moveDown(self):
-    #     self.oldY = self.yPos
-    #     self.oldX = self.xPos
-    #     self.yPos += 1
-    #     self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
-        
-    # def moveLeft(self):
-    #     self.oldY = self.yPos
-    #     self.oldX = self.xPos
-    #     self.xPos -= 1
-    #     self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
-        
-    # def moveRight(self):
-    #     self.oldY = self.yPos
-    #     self.oldX = self.xPos
-    #     self.xPos += 1
-    #     self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
-        
-    # def move(self,j):
-        
-    #     data = Map.surround(j, self.yPos, self.xPos) #pulls surrounding data from map example, replace with robot function in future
-        
-
-    #     path = self.decidePath(data)
-
-    #     if len(path) > 1:
-    #         choice = path[r.randint(0,len(path) - 1)]
-    #     else:
-    #         choice = path[0]
-        
-    #     if choice == 0:
-    #         self.moveLeft()
-    #     elif choice == 1:
-    #         self.moveUp()
-    #     elif choice == 2:
-    #         self.moveRight()
-    #     elif choice == 3:
-    #         self.moveDown()        
-
     def move(self, j):
-        data = Map.surround(j, self.yPos, self.xPos)
-
+        
+        self.mapUpdate(j)
+        data = self.mouseMap[self.yPos, self.xPos, 0:4]
         path = self.decidePath(data)
-
         if len(path) > 1:
-            choice = path[r.randint(0,len(path) - 1)]
+            for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
+                if self.favorList[i] in path:
+                    choice = self.favorList[i]
         else:
             choice = path[0]
         
         if self.heading == choice:
             self.drive()
-        elif self.heading - 1 == choice:
+        elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
             self.heading = choice
             # robot turn left 90
             self.drive()
-        elif self.heading + 1 == choice:
+        elif (self.heading + 1 == choice) | (self.heading - 3 == choice):
             self.heading = choice
             # robot turn right 90
             self.drive()
@@ -86,30 +44,6 @@ class SmartMouse:
             # robot turn 180
             self.drive()
         
-
-
-    
-    def drive(self):
-        self.oldY = self.yPos
-        self.oldX = self.xPos
-        
-        if self.heading == 0:    
-            self.xPos -= 1
-        elif self.heading == 1:
-            self.yPos -= 1
-        elif self.heading == 2:
-            self.xPos += 1
-        elif self.heading == 3:
-            self.yPos += 1
-
-        self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
-
-            
-
-    
-            
-        
-
     def decidePath(self, data):
         options = [ 2, 2, 2, 2 ] # start at 2, decrease depending on criteria, if reaches zero its a no go
         moves = [] # stores final list of potential moves
@@ -124,24 +58,21 @@ class SmartMouse:
             back = 1
         elif self.yPos - self.oldY == -1:
             back = 3
-
-
-        # new junction sensing
-
+        
+        # junction sensing
         if sum(data) == 2: 
             for i in range(0,4):
                 if data[i] == 0:
                     if i != back:
                         moves.append(i) # when in a hallway, this will give direction of next move
 
-
         elif sum(data) == 3:
             if (self.xPos == self.startX) & (self.yPos == self.startY + 1):
                 moves.append(3) # hard code to not make robot leave maze when it gets in
             else:
                 moves.append(back) # when in a dead end, this will give direction of next move
+        
         else:
-
             # junction reached
             
             if self.xPos != 0: # scores left option
@@ -180,22 +111,54 @@ class SmartMouse:
                 moves.append(back)
             else:
                 moves = semiSafeList
-        return moves   
+        return moves
+
     
+    def drive(self):
+        self.oldY = self.yPos
+        self.oldX = self.xPos
+        
+        if self.heading == 0:    
+            self.xPos -= 1
+        elif self.heading == 1:
+            self.yPos -= 1
+        elif self.heading == 2:
+            self.xPos += 1
+        elif self.heading == 3:
+            self.yPos += 1
+
+        self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
+
     def solveMaze(self, j):
         move = 1
-        
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         self.drive() # moves into maze
         while self.yPos < self.height - 1:
+            
             self.move(j)
+            # print("at", self.oldX, " ", self.oldY, "I see", self.mouseMap[self.yPos, self.xPos, 0:4])
             move += 1
-            print("x Pos:", self.xPos, "Y Pos:", self.yPos)
         path = [[row[4] for row in column] for column in self.mouseMap]
         path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
         
         return move, path
     
+    
+    def mapUpdate(self, j):
+        walls = Map.surround(j, self.yPos, self.xPos, self.heading)
+        out = [0, 0, 0, 0]
+        if self.heading == 0:
+            out = [walls[1], walls[2], walls[3], walls[0]]
+        elif self.heading == 2:
+            out = [walls[3], walls[0], walls[1], walls[2]]
+        elif self.heading ==3:
+            out = [walls[2], walls[3], walls[0], walls[1]]
+        else:
+            out = walls
+
+        for i in range(0,4):
+            self.mouseMap[self.yPos, self.xPos, i] = out[i] # had walls instead of out cost me hours
+
     def reset(self):
         self.xPos, self.oldX = self.startX, self.startX
         self.yPos, self.oldY = self.startY, self.startY

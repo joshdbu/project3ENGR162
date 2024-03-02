@@ -9,6 +9,9 @@ testMap = Map(2,0)
 jerry =  SmartMouse(2, 0, 7, 5, 6)
 jerryMoves = []
 jerryPaths = []
+# heading = 0
+# print("heading is", heading)
+# jerry.getView(testMap, heading, 2, 3)
 
 for i in range(0,1):
     jerryMove, jerryPath = jerry.solveMaze(testMap)
@@ -24,11 +27,12 @@ for row in jerryPaths[0]:
     print()  # Add a newline after each row
 print("jerry took", jerryMoves[0], "turns")
 
-for row in jerryPaths[minIndex]:
-    for value in row:
-        print(value, end=' ')
-    print()  # Add a newline after each row
-print("jerry took", jerryMoves[minIndex], "turns")
+
+# for row in jerryPaths[minIndex]:
+#     for value in row:
+#         print(value, end=' ')
+#     print()  # Add a newline after each row
+# print("jerry took", jerryMoves[minIndex], "turns")
 
 
 # numMoveData = []
