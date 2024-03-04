@@ -7,12 +7,10 @@ from MazeRobotClass import MazeRobot
 
 # testMap = Map(2,0) 
 # tom = DumbMouse(testMap)
-# jerry =  SmartMouse(testMap)
+# careBot =  SmartMouse(testMap)
 careBot = MazeRobot(2, 0, 7, 5, 6)
 
-start = time.perf_counter()
-while (time.perf_counter() - start) < 1:
-    pass      # gives time for gyro to calibrate
+time.sleep(5)
 
 # hi Josh
 # while True:
@@ -26,7 +24,24 @@ while (time.perf_counter() - start) < 1:
 # careBot.driveStraightUltra(200, 15)
 #careBot.gyroTurn(100,90)
 #careBot.driveStraightUntil(200, 20, 20)
-move, path = careBot.solveMaze()
+
+
+careBotMoves = []
+careBotPaths = []
+
+for i in range(0,1):
+    careBotMove, careBotPath = careBot.solveMaze()
+    careBotMoves.append(careBotMove)
+    careBotPaths.append(careBotPath)
+    careBot.reset()
+
+minIndex = careBotMoves.index(min(careBotMoves))
+
+for row in careBotPaths[0]:
+    for value in row:
+        print(value, end=' ')
+    print()  # Add a newline after each row
+print("careBot took", careBotMoves[0], "turns")
 
 # try:
 #     for i in range(0,10):

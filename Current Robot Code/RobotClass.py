@@ -4,12 +4,13 @@ from RobotGyro import Gyro
 from GroveUltrasonic import GroveUltra
 from EV3Ultrasonic import EV3Ultra
 import math
-from statistics import mean
-
+import sys
 import time
 
 BP = brickpi3.BrickPi3()
+print("current battery voltage:", BP.get_voltage_battery())
 BP.reset_all()
+# sys.tracebacklimit = -1
 
 class Robot:
     def __init__(self):
@@ -39,17 +40,17 @@ class Robot:
             BP.set_motor_limits(BP.PORT_C, 90, speed) 
             start = time.perf_counter()
             while (time.perf_counter() - start) < 3:
-
+                
                 BP.set_motor_position(BP.PORT_B, motorDeg)
 
                 BP.set_motor_position(BP.PORT_C, -motorDeg)
 
 
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
         
     def reset(self):
-        BP.reset_all()
+        self.reset()
 
     def move(self, speed):
         try:
@@ -58,7 +59,7 @@ class Robot:
                 BP.set_motor_dps(BP.PORT_C, speed)
 
         except KeyboardInterrupt:
-            BP.reset_all() 
+            self.reset() 
   
     def gyroTurn(self, speed, degrees):
 
@@ -71,42 +72,42 @@ class Robot:
         try:
             
             self.gyro.reset()
-            print("heading at begining of turn is", self.gyro.heading())
-            start = time.perf_counter()
-            while (time.perf_counter() - start) < 1:
-                pass           
-            print("if this val different than ^ somthing is wrong", self.gyro.heading())
-            print("compared vals: heading and degrees", abs(self.gyro.heading()), abs(degrees))
+            # print("heading at begining of turn is", self.gyro.heading())
+            # start = time.perf_counter()
+            # while (time.perf_counter() - start) < 1:
+            #     pass           
+            # print("if this val different than ^ somthing is wrong", self.gyro.heading())
+            # print("compared vals: heading and degrees", abs(self.gyro.heading()), abs(degrees))
             while abs(self.gyro.heading())  + 5 < abs(degrees) :
-                self.gyro.printHeading()
+                # self.gyro.printHeading()
                 BP.set_motor_dps(BP.PORT_B, speed * direction)
                 BP.set_motor_dps(BP.PORT_C, speed * -direction)
             
             start = time.perf_counter()
             
             
-            while (time.perf_counter() - start) < 3:
+            while (time.perf_counter() - start) < 2:
                 currentOffset = degrees - self.gyro.heading()
                 
-                self.gyro.printHeading()
+                # self.gyro.printHeading()
                 BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
                 BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)
 
             BP.set_motor_dps(BP.PORT_B, 0)
             BP.set_motor_dps(BP.PORT_C, 0)
             
-            start = time.perf_counter()
-            print("heading at begining end turn is", self.gyro.heading())
+            # start = time.perf_counter()
+            # print("heading at begining end turn is", self.gyro.heading())
             self.gyro.reset()
-            print("reset heading is", self.gyro.heading())
-            while (time.perf_counter() - start) < self.timeConst:
-                pass
+            # print("reset heading is", self.gyro.heading())
+            # while (time.perf_counter() - start) < self.timeConst:
+            #     pass
             
             
 
 
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
 
     def driveStriaghtDistNoGyro(self, speed, dist):
         degrees = round((360 * dist) / (math.pi * self.wheelDia))
@@ -144,16 +145,17 @@ class Robot:
                 
         
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
 
     def driveStraightDist(self, speed, dist):
 
         degrees = round((360 * dist) / (math.pi * self.wheelDia))
         self.gyro.reset()
+        
 
         try:
             
-            print("heading at begining of drive is", self.gyro.heading())
+            # print("heading at begining of drive is", self.gyro.heading())
             start = time.perf_counter()
             while (time.perf_counter() - start) < self.timeConst:
                 pass
@@ -169,7 +171,7 @@ class Robot:
                 
                 
                 currentOffset = self.gyro.heading()
-                
+                # self.gyro.printHeading()
 
                 BP.set_motor_dps(BP.PORT_B, speed - gain * currentOffset)
                 BP.set_motor_dps(BP.PORT_C, speed + gain * currentOffset)
@@ -178,7 +180,8 @@ class Robot:
                 
 
             start = time.perf_counter()
-            while (time.perf_counter() - start) < 3:
+            while (time.perf_counter() - start) < 2:
+                # self.gyro.printHeading()
                 currentOffset = degrees - average
                 BP.set_motor_dps(BP.PORT_B, gain2 * currentOffset)
                 BP.set_motor_dps(BP.PORT_C, gain2 * currentOffset)
@@ -189,17 +192,17 @@ class Robot:
             BP.set_motor_dps(BP.PORT_C, 0)
             start = time.perf_counter()
             
-            while (time.perf_counter() - start) < self.timeConst:
-                pass
-            print("heading at end of turn is", self.gyro.heading())
+            # while (time.perf_counter() - start) < self.timeConst:
+            #     pass
+            # # print("heading at end of drive is", self.gyro.heading())
         
-            print("reset heading is", self.gyro.heading())
+            
             
            
                 
         
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
 
     def driveStraightUntil(self, speed, groundDist, wallDist):
         degrees = round((360 * groundDist) / (math.pi * self.wheelDia))
@@ -230,10 +233,10 @@ class Robot:
                 # print(average, " ", degrees - 3)
                 if average > degrees - 3:
                     flagGround = True
-                    print("1")
+                    # print("1")
                 elif self.frontUltra.getDistance() < wallDist + 5:
                     flagWall = True
-                    print("2")
+                    # print("2")
                 
             if flagGround:
                 start = time.perf_counter()
@@ -247,7 +250,7 @@ class Robot:
                 start = time.perf_counter()
                 while (time.perf_counter() - start) < 5:
                     currentOffset = wallDist - self.frontUltra.getDistance()
-                    print(currentOffset)
+                    # print(currentOffset)
                     if abs(currentOffset) > 2:
                         currentOffset = 0
                     BP.set_motor_dps(BP.PORT_B, gain3 * -currentOffset)
@@ -261,7 +264,7 @@ class Robot:
                 
         
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
 
     def driveStraightUltra(self, speed, dist):
         
@@ -297,7 +300,7 @@ class Robot:
             time.sleep(3)
 
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
 
     def getHeading(self):
 
@@ -306,7 +309,7 @@ class Robot:
                 
                 self.gyro.printHeading()
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
     
     def getFrontUltraDist(self):
 
@@ -315,7 +318,7 @@ class Robot:
 
                 self.frontUltra.printDistance()
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
             
     def squareUp(self, speed):
         # squares up robot on left wall and resets gyro
@@ -391,7 +394,7 @@ class Robot:
 
         
         except KeyboardInterrupt:
-            BP.reset_all()
+            self.reset()
 
         
     def explore(self):
@@ -411,6 +414,11 @@ class Robot:
         print("walls i see", walls)
         
         return walls
+    
+    def reset(self):
+        print("Robot shutting down... :(")
+        BP.reset_all()
+        sys.exit(1)
 
 
 

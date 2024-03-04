@@ -15,6 +15,7 @@ class MazeRobot:
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
         self.favorList = [3, 0, 2, 1] # ranked list of favorite paths, rn down, right, left, up
+        self.unit = 5 # grid unit distance in centimeters
 
         self.careBot = Robot()
         
@@ -24,8 +25,8 @@ class MazeRobot:
         self.mapUpdate()
         data = self.mouseMap[self.yPos, self.xPos, 0:4]
         path = self.decidePath(data)
-        print("path is", path)
-        print("heading is", self.heading)
+        # print("path is", path)
+        # print("heading is", self.heading)
         if len(path) > 1:
             for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
                 if self.favorList[i] in path:
@@ -35,31 +36,31 @@ class MazeRobot:
         
         if self.heading == choice:
             self.drive()
-            self.careBot.driveStraightUntil(100, 10, 1)
-            print("going straight")
+            self.careBot.driveStraightUntil(100, self.unit, 1)
+            # print("going straight")
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
             self.heading = choice
-            print("turning left")
-            self.careBot.turnDeg(100, 90)
-            print("going straight")
-            self.careBot.driveStraightUntil(100, 10, 1)
+            # print("turning left")
+            self.careBot.gyroTurn(100, 90)
+            # print("going straight")
+            self.careBot.driveStraightUntil(100, self.unit, 1)
             
             # robot turn left 90
             self.drive()
         elif (self.heading + 1 == choice) | (self.heading - 3 == choice):
             self.heading = choice
-            self.careBot.turnDeg(100, -90)
-            print("turning right")
-            self.careBot.driveStraightUntil(100, 10, 1)
-            print("going straight")
+            self.careBot.gyroTurn(100, -90)
+            # print("turning right")
+            self.careBot.driveStraightUntil(100, self.unit, 1)
+            # print("going straight")
             # robot turn right 90
             self.drive()
         else:
             self.heading = choice
-            self.careBot.turnDeg(100, 180)
-            print("turning aorund")
-            self.careBot.driveStraightUntil(100, 10, 1)
-            print("turning right")
+            self.careBot.gyroTurn(100, 180)
+            # print("turning aorund")
+            self.careBot.driveStraightUntil(100, self.unit, 1)
+            # print("turning right")
             # robot turn 180
             self.drive()
         
@@ -156,7 +157,7 @@ class MazeRobot:
         while self.yPos < self.height - 1:
             
             self.move()
-            # print("at", self.oldX, " ", self.oldY, "I see", self.mouseMap[self.yPos, self.xPos, 0:4])
+            print("at", self.oldX, " ", self.oldY)
             move += 1
         path = [[row[4] for row in column] for column in self.mouseMap]
         path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
