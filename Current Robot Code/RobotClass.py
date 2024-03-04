@@ -334,6 +334,9 @@ class Robot:
                 BP.set_motor_dps(BP.PORT_B, speed * (currentOffset / abs(currentOffset)))
                 BP.set_motor_dps(BP.PORT_C, speed * (-currentOffset / abs(currentOffset)))
 
+            BP.set_motor_dps(BP.PORT_B, 0)
+            BP.set_motor_dps(BP.PORT_C, 0)
+            
             start = time.perf_counter()
             while (time.perf_counter() - start) < 4:
                 
@@ -350,46 +353,46 @@ class Robot:
             
             self.gyro.reset()
 
-            time.sleep(2)
+            
 
-            dist = 0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance())
-            print("dist is", dist)
+            # dist = 0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance())
+            # print("dist is", dist)
 
-            if (dist < 6):
+            # if (dist < 6):
                 
-                self.gyroTurn(100, -90)
-                self.driveStraightDist(100, abs(12 - dist))
-                self.gyroTurn(100, 90)
+            #     self.gyroTurn(100, -90)
+            #     self.driveStraightDist(100, abs(12 - dist))
+            #     self.gyroTurn(100, 90)
 
-                BP.set_motor_dps(BP.PORT_B, 0)
-                BP.set_motor_dps(BP.PORT_C, 0)
+            #     BP.set_motor_dps(BP.PORT_B, 0)
+            #     BP.set_motor_dps(BP.PORT_C, 0)
 
-                dist = 0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance())
-                print("dist is", dist)
+            #     dist = 0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance())
+            #     print("dist is", dist)
 
-            while True:
-                if abs(self.frontLeftUltra.getDistance() - self.backLeftUltra.getDistance()) < 2:
-                    break
-                left = self.frontLeftUltra.getDistance()
-                right = self.backLeftUltra.getDistance()
+            # while True:
+            #     if abs(self.frontLeftUltra.getDistance() - self.backLeftUltra.getDistance()) < 2:
+            #         break
+            #     left = self.frontLeftUltra.getDistance()
+            #     right = self.backLeftUltra.getDistance()
                 
-                currentOffset = left - right
-                BP.set_motor_dps(BP.PORT_B, speed * (currentOffset / abs(currentOffset)))
-                BP.set_motor_dps(BP.PORT_C, speed * (-currentOffset / abs(currentOffset)))
+            #     currentOffset = left - right
+            #     BP.set_motor_dps(BP.PORT_B, speed * (currentOffset / abs(currentOffset)))
+            #     BP.set_motor_dps(BP.PORT_C, speed * (-currentOffset / abs(currentOffset)))
 
-            start = time.perf_counter()
-            while (time.perf_counter() - start) < 4:
+            # start = time.perf_counter()
+            # while (time.perf_counter() - start) < 4:
                 
-                left = self.frontLeftUltra.getDistance()
-                right = self.backLeftUltra.getDistance()
+            #     left = self.frontLeftUltra.getDistance()
+            #     right = self.backLeftUltra.getDistance()
                 
-                currentOffset = left - right
+            #     currentOffset = left - right
                 
-                BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
-                BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)
+            #     BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
+            #     BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)
              
-            BP.set_motor_dps(BP.PORT_B, 0)
-            BP.set_motor_dps(BP.PORT_C, 0)
+            # BP.set_motor_dps(BP.PORT_B, 0)
+            # BP.set_motor_dps(BP.PORT_C, 0)
 
 
         
