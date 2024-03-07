@@ -12,6 +12,12 @@ class GroveUltra:
         self.ultrasonic_ranger = port
         self._dist = 0
 
+    def GetDistFast(self):
+        raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
+        
+
+        return raw
+    
     def getDistance(self):
         vals = []
         for i in range(0,10):

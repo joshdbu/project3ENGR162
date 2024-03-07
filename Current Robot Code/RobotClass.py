@@ -8,9 +8,10 @@ import sys
 import time
 
 BP = brickpi3.BrickPi3()
-print("current battery voltage:", BP.get_voltage_battery())
+print("Current battery voltage:", BP.get_voltage_battery(), "volts \nProgram will begin in T - 5 seconds")
 BP.reset_all()
-# sys.tracebacklimit = -1
+startTime = time.perf_counter()
+
 
 class Robot:
     def __init__(self):
@@ -48,19 +49,7 @@ class Robot:
 
         except KeyboardInterrupt:
             self.reset()
-        
-    def reset(self):
-        self.reset()
 
-    def move(self, speed):
-        try:
-            while True:
-                BP.set_motor_dps(BP.PORT_B, speed)
-                BP.set_motor_dps(BP.PORT_C, speed)
-
-        except KeyboardInterrupt:
-            self.reset() 
-  
     def gyroTurn(self, speed, degrees):
 
         direction = -1
@@ -72,12 +61,7 @@ class Robot:
         try:
             
             self.gyro.reset()
-            # print("heading at begining of turn is", self.gyro.heading())
-            # start = time.perf_counter()
-            # while (time.perf_counter() - start) < 1:
-            #     pass           
-            # print("if this val different than ^ somthing is wrong", self.gyro.heading())
-            # print("compared vals: heading and degrees", abs(self.gyro.heading()), abs(degrees))
+    
             while abs(self.gyro.heading())  + 5 < abs(degrees) :
                 # self.gyro.printHeading()
                 BP.set_motor_dps(BP.PORT_B, speed * direction)
@@ -95,17 +79,9 @@ class Robot:
 
             BP.set_motor_dps(BP.PORT_B, 0)
             BP.set_motor_dps(BP.PORT_C, 0)
-            
-            # start = time.perf_counter()
-            # print("heading at begining end turn is", self.gyro.heading())
+        
             self.gyro.reset()
-            # print("reset heading is", self.gyro.heading())
-            # while (time.perf_counter() - start) < self.timeConst:
-            #     pass
             
-            
-
-
         except KeyboardInterrupt:
             self.reset()
 
@@ -279,7 +255,7 @@ class Robot:
             gain2 = 75 # tuning stop at value
             
             while True:
-                if self.frontUltra.getDistance() < dist + 5:
+                if self.frontUltra.getDistance() < dist + 1:
                     break    
                 currentOffset = self.gyro.heading()
                 
@@ -288,9 +264,10 @@ class Robot:
 
 
             start = time.perf_counter()
-            while (time.perf_counter() - start) < 5:
-                currentOffset = dist - self.frontUltra.getDistance()
-                print(currentOffset)
+            while (time.perf_counter() - start) < 3:
+                raw = dist - self.frontUltra.getDistance()
+                if abs(raw) < 10:
+                    currentOffset = raw
                 BP.set_motor_dps(BP.PORT_B, gain2 * -currentOffset)
                 BP.set_motor_dps(BP.PORT_C, gain2 * -currentOffset)
                 
@@ -302,15 +279,6 @@ class Robot:
         except KeyboardInterrupt:
             self.reset()
 
-    def getHeading(self):
-
-        try:
-            while True:
-                
-                self.gyro.printHeading()
-        except KeyboardInterrupt:
-            self.reset()
-    
     def getFrontUltraDist(self):
 
         try:
@@ -320,34 +288,51 @@ class Robot:
         except KeyboardInterrupt:
             self.reset()
             
-    def squareUp(self, speed):
+    def squareUp(self):
         # squares up robot on left wall and resets gyro
         try:
             gain = 15
             while True:
-                if abs(self.frontLeftUltra.getDistance() - self.backLeftUltra.getDistance()) < 2:
-                    break
+
                 left = self.frontLeftUltra.getDistance()
                 right = self.backLeftUltra.getDistance()
                 
+                if abs(left - right) < 1.5:
+                    break
+                
+                
                 currentOffset = left - right
-                BP.set_motor_dps(BP.PORT_B, speed * (currentOffset / abs(currentOffset)))
-                BP.set_motor_dps(BP.PORT_C, speed * (-currentOffset / abs(currentOffset)))
+                
+                # print("left:", left, "right:", right, "offset:", currentOffset)
+                BP.set_motor_dps(BP.PORT_B, 100 * (currentOffset / abs(currentOffset)))
+                BP.set_motor_dps(BP.PORT_C, 100 * (-currentOffset / abs(currentOffset)))
 
             BP.set_motor_dps(BP.PORT_B, 0)
             BP.set_motor_dps(BP.PORT_C, 0)
+            left = self.frontLeftUltra.getDistance()
+            right = self.backLeftUltra.getDistance()
+            currentOffset = left - right
+            
+            if abs(currentOffset) < 1:
+                timeConst = 2
+            else:
+                timeConst = 5
             
             start = time.perf_counter()
-            while (time.perf_counter() - start) < 4:
+            while (time.perf_counter() - start) < timeConst:
                 
                 left = self.frontLeftUltra.getDistance()
                 right = self.backLeftUltra.getDistance()
                 
                 currentOffset = left - right
-
-                BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
-                BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)
-             
+                # print("left:", left, "right:", right, "offset:", currentOffset)
+                if abs(currentOffset) > 10:
+                    pass
+                    print("error caught")
+                else:
+                    BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
+                    BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)
+                
             BP.set_motor_dps(BP.PORT_B, 0)
             BP.set_motor_dps(BP.PORT_C, 0)
             
@@ -399,7 +384,34 @@ class Robot:
         except KeyboardInterrupt:
             self.reset()
 
-        
+    def strafe(self, direction, wallDist, wheelDist):
+        factor = 1
+        if direction == 0:
+            factor = -1
+            
+        self.gyroTurn(150, -90 * factor)
+        self.driveStraightUntil(150, wheelDist, wallDist)
+        self.gyroTurn(150, 90 * factor)
+
+        self.squareUp()
+
+    def celebrate(self):
+        try:
+
+            # BP.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
+            # BP.set_motor_limits(BP.PORT_A, 90, 100) 
+            start = time.perf_counter()
+            while (time.perf_counter() - start) <0.5:
+                
+                BP.set_motor_dps(BP.PORT_A, -120)
+            while (time.perf_counter() - start) < 1:
+                
+                BP.set_motor_dps(BP.PORT_A, 120)
+            BP.set_motor_dps(BP.PORT_A, 0)
+
+        except KeyboardInterrupt:
+            self.reset()
+    
     def explore(self):
         # returns distances of surrounding walls
 
@@ -419,11 +431,9 @@ class Robot:
         return walls
     
     def reset(self):
-        print("Robot shutting down... :(")
+        print("\n\n\nRobot shutting down... :(\nStats:", round(time.perf_counter() - startTime, 2), "seconds of run time\n\n\n")
+        BP.set_motor_dps(BP.PORT_B, 0)
+        BP.set_motor_dps(BP.PORT_C, 0)
+        self.celebrate()
         BP.reset_all()
         sys.exit(1)
-
-
-
-
-

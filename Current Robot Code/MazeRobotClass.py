@@ -1,6 +1,4 @@
 import numpy as np
-import random as r
-from MapClass import Map
 from RobotClass import Robot
 
 
@@ -16,6 +14,7 @@ class MazeRobot:
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
         self.favorList = [3, 0, 2, 1] # ranked list of favorite paths, rn down, right, left, up
         self.unit = 40 # grid unit distance in centimeters
+        self.wallDist = 12 # distance to stop from forward wall
 
         self.careBot = Robot()
         
@@ -36,14 +35,14 @@ class MazeRobot:
         
         if self.heading == choice:
             self.drive()
-            self.careBot.driveStraightUntil(200, self.unit, 13)
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
             # print("going straight")
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
             self.heading = choice
             # print("turning left")
             self.careBot.gyroTurn(150, 90)
             # print("going straight")
-            self.careBot.driveStraightUntil(200, self.unit, 13)
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
             
             # robot turn left 90
             self.drive()
@@ -51,7 +50,7 @@ class MazeRobot:
             self.heading = choice
             self.careBot.gyroTurn(150, -90)
             # print("turning right")
-            self.careBot.driveStraightUntil(200, self.unit, 13)
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
             # print("going straight")
             # robot turn right 90
             self.drive()
@@ -59,7 +58,7 @@ class MazeRobot:
             self.heading = choice
             self.careBot.gyroTurn(150, 180)
             # print("turning aorund")
-            self.careBot.driveStraightUntil(200, self.unit, 13)
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
             # print("turning right")
             # robot turn 180
             self.drive()
@@ -153,7 +152,7 @@ class MazeRobot:
         move = 1
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         self.drive() # moves into maze
-        self.careBot.driveStraightUntil(200, 40, 13)
+        # self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
         while self.yPos < self.height - 1:
             
             self.move()
@@ -162,11 +161,24 @@ class MazeRobot:
         path = [[row[4] for row in column] for column in self.mouseMap]
         path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
         
+        self.careBot.reset()
+        
         return move, path
     
     
     def mapUpdate(self):
         walls = self.careBot.explore()
+        print
+        if walls[0] == 1:
+            self.careBot.squareUp()
+
+            leftWallDist = 0.5 * (self.careBot.backLeftUltra.getDistance() + self.careBot.frontLeftUltra.getDistance())
+            print("leftwall dist is:", leftWallDist)
+            if leftWallDist < 7:
+                temp = self.wallDist - leftWallDist
+                self.careBot.strafe(1, 999, temp)
+            elif leftWallDist > 17.5:
+                self.careBot.strafe(0, self.wallDist, 999)
         out = [0, 0, 0, 0]
         if self.heading == 0:
             out = [walls[1], walls[2], walls[3], walls[0]]

@@ -13,4 +13,16 @@ time.sleep(5)
 # while True:
 #     careBot.gyro.printHeading()
 
-careBot.squareUp(100)
+careBot.strafe(1, 999, 14)
+
+
+
+
+
+
+
+
+
+
+
+careBot.reset()
