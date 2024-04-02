@@ -4,7 +4,7 @@ from MPU9250 import MPU9250
 import math
 import time
 
-class MagSensor:
+class Magnet_Sensor:
     def __init__(self): 
         mpu9250 = MPU9250()
     
