@@ -16,8 +16,8 @@ class IRSensor:
 
     # print function
     def IR_PrintValues(self):
-       [x, y] =  self.IR_Read()
-       print ("One = " + x + "\tTwo = " + y)
+       reading = self.IR_Read()
+       print ("IR reading: " + reading)
 
     #Read Function		
     def IR_Read(self):
@@ -26,6 +26,7 @@ class IRSensor:
         sensor2 = 9	             
         sensor1_value = grovepi.analogRead(sensor1)
         sensor2_value = grovepi.analogRead(sensor2)
+        avgValue = (sensor1_value + sensor2_value) / 2
                     
-        return [sensor1_value, sensor2_value]
+        return avgValue
         
