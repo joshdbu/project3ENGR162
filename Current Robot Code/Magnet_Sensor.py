@@ -14,7 +14,7 @@ class MagSensor:
         print ("X = " + x + "\tY = " + yMag + "\tZ = " + zMag);
 
     #Read Function		
-    def IR_Read(self):
+    def Mag_Read(self):
         [xMag, yMag, zMag] = mpu9250.readMagnet() # magnet sensor values
         return [xMag, yMag, zMag]
         
