@@ -35,34 +35,29 @@ class MazeRobot:
             choice = path[0]
         
         if self.heading == choice:
-            self.drive()
-            self.careBot.driveStraightUntil(300, self.unit, self.wallDist)
+            self.avoidThing(self)
             print("going straight")
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
             self.heading = choice
             print("turning left")
             self.careBot.gyroTurn(150, 90)
             print("going straight")
-            self.careBot.driveStraightUntil(300, self.unit, self.wallDist)
-            
+            self.avoidThing(self)            
             # robot turn left 90
-            self.drive()
         elif (self.heading + 1 == choice) | (self.heading - 3 == choice):
             self.heading = choice
             self.careBot.gyroTurn(150, -90)
             print("turning right")
-            self.careBot.driveStraightUntil(300, self.unit, self.wallDist)
+            self.avoidThing(self)
             print("going straight")
             # robot turn right 90
-            self.drive()
         else:
             self.heading = choice
             self.careBot.gyroTurn(150, 180)
             print("turning aorund")
-            self.careBot.driveStraightUntil(300, self.unit, self.wallDist)
+            self.avoidThing(self)
             print("turning right")
             # robot turn 180
-            self.drive()
         
     def decidePath(self, data):
         options = [ 2, 2, 2, 2 ] # start at 2, decrease depending on criteria, if reaches zero its a no go
@@ -193,7 +188,29 @@ class MazeRobot:
 
         for i in range(0,4):
             self.mouseMap[self.yPos, self.xPos, i] = out[i] # had walls instead of out cost me hours
-
+ def avoidThings(self):
+        if IR_Sensor.IR_Read <=100: #IR sensor reading from 20 cm away
+            if self.heading == 0:
+                self.MouseMap[self.yPos, self.xPos - 1, 5]
+            if self.heading == 1:
+                self.MouseMap[self.yPos - 1, self.xPos, 5]
+            if self.heading == 2:
+                self.MouseMap[self.yPos, self.xPos + 1, 5]
+            if self.heading == 3:
+                self.MouseMap[self.yPos + 1, self.xPos, 5]
+        elif Magnet_Sensor.Mag_Read <= 230: #this needs to be confirmed
+            if self.heading == 0:
+                self.MouseMap[self.yPos, self.xPos - 1, 5]
+            if self.heading == 1:
+                self.MouseMap[self.yPas, self.xPos, 5]
+            if self.heading == 2:
+                self.MouseMap[self.yPos, self.xPos + 1, 5]
+            if self.heading == 3:
+                self.MouseMap[self.yPos + 1, self.xPos, 5]
+        else:
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            self.drive()
+            
     def reset(self):
         self.xPos, self.oldX = self.startX, self.startX
         self.yPos, self.oldY = self.startY, self.startY
