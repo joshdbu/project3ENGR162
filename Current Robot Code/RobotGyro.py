@@ -19,6 +19,7 @@ class Gyro:
     def heading(self):
         try:
             raw = bp.get_sensor(bp.PORT_3)
+            
         except SensorError:
             pass
         else:

@@ -8,12 +8,13 @@ bp = BrickPi3()
 
 
 class EV3Ultra:
-    def __init__(self):
+    def __init__(self, measure):
         
         bp.set_sensor_type(bp.PORT_1, bp.SENSOR_TYPE.EV3_ULTRASONIC_CM)  # type: ignore
 
         self._distance = 0
         self._offset = 0
+        self.numMeasure = measure
 
     def distance(self):
         try:
@@ -26,7 +27,7 @@ class EV3Ultra:
 
     def getDistance(self):
         sum = []
-        for i in range(1,6):
+        for i in range(1, self.numMeasure):
             sum.append(self.distance())
         avg = mean(sum)
 

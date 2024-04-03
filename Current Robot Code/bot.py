@@ -8,7 +8,7 @@ from MazeRobotClass import MazeRobot
 # testMap = Map(2,0) 
 # tom = DumbMouse(testMap)
 # careBot =  SmartMouse(testMap)
-careBot = MazeRobot(1, 0, 7, 2, 6)
+careBot = MazeRobot(3, 0, 7, 8, 7)
 
 time.sleep(5)
 
@@ -33,10 +33,11 @@ for i in range(0,1):
     careBotMove, careBotPath = careBot.solveMaze()
     careBotMoves.append(careBotMove)
     careBotPaths.append(careBotPath)
+    print("here 2")
     careBot.reset()
 
 minIndex = careBotMoves.index(min(careBotMoves))
-
+print("here 3")
 for row in careBotPaths[0]:
     for value in row:
         print(value, end=' ')

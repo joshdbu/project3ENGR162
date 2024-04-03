@@ -19,12 +19,13 @@ class Robot:
         self.frontUltraPort = 5
         self.leftFrontUP = 6
         self.leftBackUP = 7
+        self.numMeasure = 5
 
         self.gyro = Gyro()
-        self.frontUltra = GroveUltra(self.frontUltraPort)
-        self.frontLeftUltra = GroveUltra(self.leftFrontUP)
-        self.backLeftUltra = GroveUltra(self.leftBackUP)
-        self.rightUltra = EV3Ultra()
+        self.frontUltra = GroveUltra(self.frontUltraPort, self.numMeasure)
+        self.frontLeftUltra = GroveUltra(self.leftFrontUP, self.numMeasure)
+        self.backLeftUltra = GroveUltra(self.leftBackUP, self.numMeasure)
+        self.rightUltra = EV3Ultra(self.numMeasure)
 
         self.heading = self.gyro.heading()
         self.wheelDia = 4.07 
@@ -63,7 +64,8 @@ class Robot:
             self.gyro.reset()
     
             while abs(self.gyro.heading())  + 5 < abs(degrees) :
-                # self.gyro.printHeading()
+                # print("og loop: ", self.gyro.heading())
+                self.gyro.printHeading()
                 BP.set_motor_dps(BP.PORT_B, speed * direction)
                 BP.set_motor_dps(BP.PORT_C, speed * -direction)
             
@@ -72,8 +74,8 @@ class Robot:
             
             while (time.perf_counter() - start) < 2:
                 currentOffset = degrees - self.gyro.heading()
-                
-                # self.gyro.printHeading()
+                # print("p loop: ", self.gyro.heading())
+                self.gyro.printHeading()
                 BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
                 BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)
 
@@ -304,7 +306,7 @@ class Robot:
                 currentOffset = left - right
                 
                 # print("left:", left, "right:", right, "offset:", currentOffset)
-                BP.set_motor_dps(BP.PORT_B, 100 * (currentOffset / abs(currentOffset)))
+                BP.set_motor_dps(BP.PORT_B, 100 * (currentOffset / abs(currentOffset))) # add python even odd function instead of math, div by zero error could happen if offset is rounded to zero
                 BP.set_motor_dps(BP.PORT_C, 100 * (-currentOffset / abs(currentOffset)))
 
             BP.set_motor_dps(BP.PORT_B, 0)
@@ -328,7 +330,7 @@ class Robot:
                 # print("left:", left, "right:", right, "offset:", currentOffset)
                 if abs(currentOffset) > 10:
                     pass
-                    print("error caught")
+                    print("error caught. current offset is:", currentOffset)
                 else:
                     BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
                     BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)

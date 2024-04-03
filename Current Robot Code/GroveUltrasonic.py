@@ -5,12 +5,13 @@ from statistics import mean
 
 
 class GroveUltra:
-    def __init__(self, port):
+    def __init__(self, port, measure):
         # set I2C to use the hardware bus
         grovepi.set_bus("RPI_1")
         # Connect the Grove Ultrasonic Ranger to digital port D4
         self.ultrasonic_ranger = port
         self._dist = 0
+        self.numMeasure = measure
 
     def GetDistFast(self):
         raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
@@ -20,7 +21,7 @@ class GroveUltra:
     
     def getDistance(self):
         vals = []
-        for i in range(0,10):
+        for i in range(0,self.numMeasure): # halved from 10 to 5 to shorten cycle time
             try:
                 raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
                 if raw > 200:

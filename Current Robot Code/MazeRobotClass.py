@@ -12,7 +12,8 @@ class MazeRobot:
         self.depth = d
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
-        self.favorList = [3, 0, 2, 1] # ranked list of favorite paths, rn down, right, left, up
+        # self.favorList = [3, 2, 0, 1] # ranked list of favorite paths, rn down, left, right, up
+        self.favorList = [3, 2, 0, 1] # ranked list of favorite paths
         self.unit = 40 # grid unit distance in centimeters
         self.wallDist = 12 # distance to stop from forward wall
 
@@ -24,8 +25,8 @@ class MazeRobot:
         self.mapUpdate()
         data = self.mouseMap[self.yPos, self.xPos, 0:4]
         path = self.decidePath(data)
-        # print("path is", path)
-        # print("heading is", self.heading)
+        print("path is", path)
+        print("heading is", self.heading)
         if len(path) > 1:
             for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
                 if self.favorList[i] in path:
@@ -35,31 +36,31 @@ class MazeRobot:
         
         if self.heading == choice:
             self.drive()
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
-            # print("going straight")
+            self.careBot.driveStraightUntil(300, self.unit, self.wallDist)
+            print("going straight")
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
             self.heading = choice
-            # print("turning left")
+            print("turning left")
             self.careBot.gyroTurn(150, 90)
-            # print("going straight")
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            print("going straight")
+            self.careBot.driveStraightUntil(300, self.unit, self.wallDist)
             
             # robot turn left 90
             self.drive()
         elif (self.heading + 1 == choice) | (self.heading - 3 == choice):
             self.heading = choice
             self.careBot.gyroTurn(150, -90)
-            # print("turning right")
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
-            # print("going straight")
+            print("turning right")
+            self.careBot.driveStraightUntil(300, self.unit, self.wallDist)
+            print("going straight")
             # robot turn right 90
             self.drive()
         else:
             self.heading = choice
             self.careBot.gyroTurn(150, 180)
-            # print("turning aorund")
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
-            # print("turning right")
+            print("turning aorund")
+            self.careBot.driveStraightUntil(300, self.unit, self.wallDist)
+            print("turning right")
             # robot turn 180
             self.drive()
         
@@ -152,17 +153,18 @@ class MazeRobot:
         move = 1
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         self.drive() # moves into maze
-        # self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+        self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
         while self.yPos < self.height - 1:
             
-            self.move()
             print("at", self.oldX, " ", self.oldY)
+            self.move()
+            print("")
             move += 1
         path = [[row[4] for row in column] for column in self.mouseMap]
         path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
         
-        self.careBot.reset()
-        
+        self.reset()
+        print("do we get here?")
         return move, path
     
     
@@ -173,7 +175,7 @@ class MazeRobot:
             self.careBot.squareUp()
 
             leftWallDist = 0.5 * (self.careBot.backLeftUltra.getDistance() + self.careBot.frontLeftUltra.getDistance())
-            print("leftwall dist is:", leftWallDist)
+            # print("leftwall dist is:", leftWallDist)
             if leftWallDist < 7:
                 temp = self.wallDist - leftWallDist
                 self.careBot.strafe(1, 999, temp)
