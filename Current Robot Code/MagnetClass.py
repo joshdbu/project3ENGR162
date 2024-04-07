@@ -8,7 +8,9 @@ from statistics import mean
 class Magnet_Sensor:
     def __init__(self): 
         mpu9250 = MPU9250()
-    
+        self.baseline = [0,0]
+        self.baseline = self.calibrate()
+        
     # print function
     def Mag_PrintValues(self):
         [xMag, yMag, zMag] = self.Mag_Read()
@@ -21,11 +23,15 @@ class Magnet_Sensor:
         zList = []
         for i in range(10):
             [xMag, yMag, zMag] = mpu9250.readMagnet() # magnet sensor values
-            xList.append(xMag)
-            yList.append(yMag)
+            xList.append(xMag - self.baseline[0])
+            yList.append(yMag - self.baseline[1])
             zList.append(zMag)
         xAvg = mean(xList)
         yAvg = mean(yList)
         zAvg = mean(zList)
         return [xAvg, yAvg, zAvg]
+
+    def calibrate(self):
+        [xMag, yMag, zMag] = self.Mag_Read()
+        return[xMag, yMag]
         
