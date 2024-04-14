@@ -11,8 +11,8 @@ pointThree = [2, 0]
 pointFour = [0, 0]
 pointFive = [1,1]
 pointSix = [0,0]
-sleepTime = 5
-size = 40 # in cm
+sleepTime = 0.1
+size = 5 # in cm
 
 
 
@@ -27,65 +27,65 @@ size = 40 # in cm
 
 # To point two
 if(b != d):
-    careBot.driveStriaghtDistNoGyro(200, size * (d - b))
+    careBot.driveStraightUntil(200, size * (d - b), 10000)
 
-careBot.turnDeg(100, -90)
+careBot.gyroTurn(100, -90)
 
 if(c != a):
-    careBot.driveStriaghtDistNoGyro(200, size * (c - a))
+    careBot.driveStraightUntil(200, size * (c - a), 10000)
 
-careBot.turnDeg(100, 90)
+careBot.gyroTurn(100, 90)
 
 time.sleep(sleepTime)
 
 # To point three
 if(f != d):
-    careBot.driveStriaghtDistNoGyro(200, size * (f - d))
+    careBot.driveStraightUntil(200, size * (f - d), 10000)
 
-careBot.turnDeg(100, -90)
+careBot.gyroTurn(100, -90)
 
 if(e != c):
-    careBot.driveStriaghtDistNoGyro(200, size * (e - c))
+    careBot.driveStraightUntil(200, size * (e - c), 10000)
 
-careBot.turnDeg(100, 90)
+careBot.gyroTurn(100, 90)
 
 time.sleep(sleepTime)
 
 
 # To point four
 if(h != f):
-    careBot.driveStriaghtDistNoGyro(200, size * (h - f))
+    careBot.driveStraightUntil(200, size * (h - f), 10000)
 
-careBot.turnDeg(100, -90)
+careBot.gyroTurn(100, -90)
 
 if(g != e):
-    careBot.driveStriaghtDistNoGyro(200, size * (g - e))
+    careBot.driveStraightUntil(200, size * (g - e), 10000)
 
-careBot.turnDeg(100, 90)
+careBot.gyroTurn(100, 90)
 
 time.sleep(sleepTime)
 
 
 # To point five
 if(j != h):
-    careBot.driveStriaghtDistNoGyro(200, size * (j - h))
+    careBot.driveStraightUntil(200, size * (j - h), 10000)
 
-careBot.turnDeg(100, -90)
+careBot.gyroTurn(100, -90)
 
 if(i != g):
-    careBot.driveStriaghtDistNoGyro(200, size * (i - g))
+    careBot.driveStraightUntil(200, size * (i - g), 10000)
 
-careBot.turnDeg(100, 90)
+careBot.gyroTurn(100, 90)
 
 time.sleep(sleepTime)
 
 # to point six
 if(l != j):
-    careBot.driveStriaghtDistNoGyro(200, size * (l - j))
+    careBot.driveStraightUntil(200, size * (l - j), 10000)
 
-careBot.turnDeg(100, -90)
+careBot.gyroTurn(100, -90)
 
 if(k != i):
-    careBot.driveStriaghtDistNoGyro(200, size * (k - i))
+    careBot.driveStraightUntil(200, size * (k - i), 10000)
 
-careBot.turnDeg(100, 90)
+careBot.gyroTurn(100, 90)

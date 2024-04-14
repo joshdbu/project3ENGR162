@@ -16,10 +16,10 @@ startTime = time.perf_counter()
 class Robot:
     def __init__(self):
         
-        self.frontUltraPort = 5
+        self.frontUltraPort = 7
         self.leftFrontUP = 6
-        self.leftBackUP = 7
-        self.numMeasure = 5
+        self.leftBackUP = 5
+        self.numMeasure = 2
 
         self.gyro = Gyro()
         self.frontUltra = GroveUltra(self.frontUltraPort, self.numMeasure)
@@ -198,7 +198,7 @@ class Robot:
             average = 0
             flagGround = False
             flagWall = False
-
+            self.ultraWarmUp()
             while (not flagGround) &  (not flagWall):
 
                 currentOffset = self.gyro.heading()
@@ -209,17 +209,22 @@ class Robot:
 
                 average = (BP.get_motor_encoder(BP.PORT_B) + BP.get_motor_encoder(BP.PORT_C)) / 2
                 # print(average, " ", degrees - 3)
-                if average > degrees - 3:
+                temp = self.frontUltra.getDistance()
+                # print(temp)
+
+                if average > degrees - 15:
                     flagGround = True
-                    # print("1")
-                elif self.frontUltra.getDistance() < wallDist + 5:
+                    print("fg")
+                elif  temp < wallDist:
+                    print("wall dist", temp)
                     flagWall = True
-                    # print("2")
+                    print("fw")
                 
             if flagGround:
                 start = time.perf_counter()
                 while (time.perf_counter() - start) < 3:
                     currentOffset = degrees - average
+                    # print(currentOffset)
                     BP.set_motor_dps(BP.PORT_B, gain2 * currentOffset)
                     BP.set_motor_dps(BP.PORT_C, gain2 * currentOffset)
                     average = (BP.get_motor_encoder(BP.PORT_B) + BP.get_motor_encoder(BP.PORT_C)) / 2
@@ -228,7 +233,7 @@ class Robot:
                 start = time.perf_counter()
                 while (time.perf_counter() - start) < 5:
                     currentOffset = wallDist - self.frontUltra.getDistance()
-                    # print(currentOffset)
+                    # print("current off:", currentOffset)
                     if abs(currentOffset) > 2:
                         currentOffset = 0
                     BP.set_motor_dps(BP.PORT_B, gain3 * -currentOffset)
@@ -422,6 +427,7 @@ class Robot:
         walls.append(self.frontUltra.getDistance())
         walls.append(self.rightUltra.getDistance())
         walls.append(0) # we just came from this direction
+        print("\nwalls are", walls)
         for i in range(0, len(walls)):
             if (walls[i] < 20) & (walls[i] != 0):
                 walls[i] = 1
@@ -439,3 +445,9 @@ class Robot:
         self.celebrate()
         BP.reset_all()
         sys.exit(1)
+
+    def ultraWarmUp(self):
+        a = self.frontLeftUltra.getDistance()
+        b = self.backLeftUltra.getDistance()
+        c = self.frontUltra.getDistance()
+        d = self.rightUltra.getDistance()

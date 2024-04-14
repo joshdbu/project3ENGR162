@@ -12,8 +12,8 @@ class MazeRobot:
         self.depth = d
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
-        # self.favorList = [3, 2, 0, 1] # ranked list of favorite paths, rn down, left, right, up
-        self.favorList = [3, 2, 0, 1] # ranked list of favorite paths
+        self.favorList = [3, 2, 0, 1] # ranked list of favorite paths, rn down, left, right, up
+        # self.favorList = [3, 2, 0, 1] # ranked list of favorite paths
         self.unit = 40 # grid unit distance in centimeters
         self.wallDist = 12 # distance to stop from forward wall
 
@@ -25,8 +25,8 @@ class MazeRobot:
         self.mapUpdate()
         data = self.mouseMap[self.yPos, self.xPos, 0:4]
         path = self.decidePath(data)
-        print("path is", path)
-        print("heading is", self.heading)
+        # print("path is", path)
+        # print("heading is", self.heading)
         if len(path) > 1:
             for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
                 if self.favorList[i] in path:
@@ -35,29 +35,34 @@ class MazeRobot:
             choice = path[0]
         
         if self.heading == choice:
-            self.avoidThing(self)
-            print("going straight")
+            self.drive()
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            # print("going straight")
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
             self.heading = choice
-            print("turning left")
+            # print("turning left")
             self.careBot.gyroTurn(150, 90)
-            print("going straight")
-            self.avoidThing(self)            
+            # print("going straight")
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            
             # robot turn left 90
+            self.drive()
         elif (self.heading + 1 == choice) | (self.heading - 3 == choice):
             self.heading = choice
             self.careBot.gyroTurn(150, -90)
-            print("turning right")
-            self.avoidThing(self)
-            print("going straight")
+            # print("turning right")
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            # print("going straight")
             # robot turn right 90
+            self.drive()
         else:
             self.heading = choice
             self.careBot.gyroTurn(150, 180)
-            print("turning aorund")
-            self.avoidThing(self)
-            print("turning right")
+            # print("turning aorund")
+            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            # print("turning right")
             # robot turn 180
+            self.drive()
         
     def decidePath(self, data):
         options = [ 2, 2, 2, 2 ] # start at 2, decrease depending on criteria, if reaches zero its a no go
@@ -188,29 +193,7 @@ class MazeRobot:
 
         for i in range(0,4):
             self.mouseMap[self.yPos, self.xPos, i] = out[i] # had walls instead of out cost me hours
- def avoidThings(self):
-        if IR_Sensor.IR_Read <=100: #IR sensor reading from 20 cm away
-            if self.heading == 0:
-                self.MouseMap[self.yPos, self.xPos - 1, 5]
-            if self.heading == 1:
-                self.MouseMap[self.yPos - 1, self.xPos, 5]
-            if self.heading == 2:
-                self.MouseMap[self.yPos, self.xPos + 1, 5]
-            if self.heading == 3:
-                self.MouseMap[self.yPos + 1, self.xPos, 5]
-        elif Magnet_Sensor.Mag_Read <= 230: #this needs to be confirmed
-            if self.heading == 0:
-                self.MouseMap[self.yPos, self.xPos - 1, 5]
-            if self.heading == 1:
-                self.MouseMap[self.yPas, self.xPos, 5]
-            if self.heading == 2:
-                self.MouseMap[self.yPos, self.xPos + 1, 5]
-            if self.heading == 3:
-                self.MouseMap[self.yPos + 1, self.xPos, 5]
-        else:
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
-            self.drive()
-            
+
     def reset(self):
         self.xPos, self.oldX = self.startX, self.startX
         self.yPos, self.oldY = self.startY, self.startY

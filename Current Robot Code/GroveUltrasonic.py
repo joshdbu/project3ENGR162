@@ -14,30 +14,37 @@ class GroveUltra:
         self.numMeasure = measure
 
     def GetDistFast(self):
+        print("here1")
         raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
-        
+        print("here2")
+        time.sleep(0.02) # don't overload the i2c bus            
+
 
         return raw
     
     def getDistance(self):
         vals = []
+        # print("get here1")
         for i in range(0,self.numMeasure): # halved from 10 to 5 to shorten cycle time
             try:
                 raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
+                # print("raw is:", raw)
                 if raw > 200:
                     pass
+                    
             except Exception:
                 pass
             else:
                 vals.append(raw)
-            time.sleep(0.01) # don't overload the i2c bus
+            time.sleep(0.02) # don't overload the i2c bus
         
         self._dist = mean(vals)
 
         return self._dist
     
     def printDistance(self):
-        print(self.getDistance())
+        # print(self.getDistance())
+        print(self.GetDistFast())
         # print('{: <10}'.format(self.getDistance()), end="\r")
         time.sleep(0.02)
     

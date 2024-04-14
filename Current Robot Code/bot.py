@@ -8,7 +8,8 @@ from MazeRobotClass import MazeRobot
 # testMap = Map(2,0) 
 # tom = DumbMouse(testMap)
 # careBot =  SmartMouse(testMap)
-careBot = MazeRobot(3, 0, 7, 8, 7)
+# self, x, y, h, w, d
+careBot = MazeRobot(1, 0, 9, 4, 7)
 
 time.sleep(5)
 

@@ -29,6 +29,7 @@ class EV3Ultra:
         sum = []
         for i in range(1, self.numMeasure):
             sum.append(self.distance())
+            time.sleep(0.02)
         avg = mean(sum)
 
         return avg
