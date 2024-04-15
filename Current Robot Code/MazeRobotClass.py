@@ -194,6 +194,19 @@ class MazeRobot:
         for i in range(0,4):
             self.mouseMap[self.yPos, self.xPos, i] = out[i] # had walls instead of out cost me hours
 
+    def updateFavor(self):
+        a1 = 3 # firsst x
+        a2 = 2 # first y
+        b1 = 2 # second x
+        b2 = 0 # second y
+
+        if (self.xPos == a1) & (self.yPos == a2):
+            self.favorList = [3, 2, 0, 1]
+        elif (self.xPos == b1) & (self.yPos == b2):
+            self.favorList = [3, 2, 0, 1]
+        else:     
+            self.favorList = [3, 2, 0, 1] # access x and y pos and if we are at obstacle junction dont go to obstacle
+
     def reset(self):
         self.xPos, self.oldX = self.startX, self.startX
         self.yPos, self.oldY = self.startY, self.startY
