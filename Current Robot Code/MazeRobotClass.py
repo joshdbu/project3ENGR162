@@ -27,6 +27,7 @@ class MazeRobot:
         path = self.decidePath(data)
         # print("path is", path)
         # print("heading is", self.heading)
+        self.updateFavor()
         if len(path) > 1:
             for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
                 if self.favorList[i] in path:
@@ -170,17 +171,17 @@ class MazeRobot:
     
     def mapUpdate(self):
         walls = self.careBot.explore()
-        print
+        # print
         if walls[0] == 1:
             self.careBot.squareUp()
 
-            leftWallDist = 0.5 * (self.careBot.backLeftUltra.getDistance() + self.careBot.frontLeftUltra.getDistance())
+            # leftWallDist = 0.5 * (self.careBot.backLeftUltra.getDistance() + self.careBot.frontLeftUltra.getDistance())
             # print("leftwall dist is:", leftWallDist)
-            if leftWallDist < 7:
-                temp = self.wallDist - leftWallDist
-                self.careBot.strafe(1, 999, temp)
-            elif leftWallDist > 17.5:
-                self.careBot.strafe(0, self.wallDist, 999)
+            # if leftWallDist < 7:
+            #     temp = self.wallDist - leftWallDist
+            #     self.careBot.strafe(1, 999, temp)
+            # elif leftWallDist > 17.5:
+            #     self.careBot.strafe(0, self.wallDist, 999)
         out = [0, 0, 0, 0]
         if self.heading == 0:
             out = [walls[1], walls[2], walls[3], walls[0]]
@@ -195,17 +196,25 @@ class MazeRobot:
             self.mouseMap[self.yPos, self.xPos, i] = out[i] # had walls instead of out cost me hours
 
     def updateFavor(self):
-        a1 = 3 # firsst x
-        a2 = 2 # first y
-        b1 = 2 # second x
-        b2 = 0 # second y
+        update = False
+        points = [[3,2],[2,0]] # enter dangerous points here. dangerous points are the path to obstacle, not necasarily obstacle itself
 
-        if (self.xPos == a1) & (self.yPos == a2):
-            self.favorList = [3, 2, 0, 1]
-        elif (self.xPos == b1) & (self.yPos == b2):
-            self.favorList = [3, 2, 0, 1]
-        else:     
-            self.favorList = [3, 2, 0, 1] # access x and y pos and if we are at obstacle junction dont go to obstacle
+        for i in range(len(points) - 1):
+            if (self.xPos + 1 == points[i, 0]) & (self.yPos == points[i, 1]): # if obstacle is to right
+                self.favorList = [3, 2, 1]
+                update = True
+            elif (self.xPos - 1 == points[i, 0]) & (self.yPos == points[i, 1]): # if obstacle is to left
+                self.favorList = [3, 0, 1]
+                update = True
+            elif (self.xPos == points[i, 0]) & (self.yPos + 1 == points[i, 1]): # if below
+                self.favorList = [2, 0, 1]
+                update = True
+            elif (self.xPos == points[i, 0]) & (self.yPos - 1 == points[i, 1]): # if above
+                self.favorList = [3, 2, 0]
+                update = True
+            
+        if not update:
+            self.favorList = [3, 2, 0, 1] # confirms favorlist is reset if not at point
 
     def reset(self):
         self.xPos, self.oldX = self.startX, self.startX
