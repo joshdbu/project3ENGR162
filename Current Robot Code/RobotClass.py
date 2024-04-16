@@ -8,7 +8,7 @@ import sys
 import time
 
 BP = brickpi3.BrickPi3()
-print("Current battery voltage:", BP.get_voltage_battery(), "volts \nProgram will begin in T - 5 seconds")
+print("\nCurrent battery voltage:", BP.get_voltage_battery(), "volts \nProgram will begin in T - 5 seconds")
 BP.reset_all()
 startTime = time.perf_counter()
 
@@ -31,27 +31,43 @@ class Robot:
         self.wheelDia = 4.07 
         self.timeConst = 0.01
     
-    def turnDeg(self, speed, degrees): # this function usless now?
-        motorDeg = 2.44 * degrees
+    def gyroTurn(self, speed, degrees): # this function usless now?
+        # dia = float(input("dia"))
+        dia = 2.35
+        motorDeg = dia * degrees
+        direction = motorDeg / abs(motorDeg)
+        gain = 15
         try:
 
             BP.offset_motor_encoder(BP.PORT_B, BP.get_motor_encoder(BP.PORT_B))
-            BP.set_motor_limits(BP.PORT_B, 90, speed)
+            # BP.set_motor_limits(BP.PORT_B, 90, speed)
 
             BP.offset_motor_encoder(BP.PORT_C, BP.get_motor_encoder(BP.PORT_C))
-            BP.set_motor_limits(BP.PORT_C, 90, speed) 
+            # BP.set_motor_limits(BP.PORT_C, 90, speed) 
+            temp = 0
+            while temp < abs(motorDeg):
+                BP.set_motor_dps(BP.PORT_B, speed * direction)
+                BP.set_motor_dps(BP.PORT_C, speed * -direction)
+                temp = 0.5 * (abs(BP.get_motor_encoder(BP.PORT_B)) + abs(BP.get_motor_encoder(BP.PORT_C)))
+
             start = time.perf_counter()
             while (time.perf_counter() - start) < 3:
+                # self.gyro.printHeading()
+                currentOffset = abs(motorDeg) - abs(temp)
+                # print(currentOffset)
+                BP.set_motor_dps(BP.PORT_B, gain * currentOffset * direction)
+                BP.set_motor_dps(BP.PORT_C, gain * -currentOffset * direction)
+                temp = 0.5 * (abs(BP.get_motor_encoder(BP.PORT_B)) + abs(BP.get_motor_encoder(BP.PORT_C)))
                 
-                BP.set_motor_position(BP.PORT_B, motorDeg)
 
-                BP.set_motor_position(BP.PORT_C, -motorDeg)
+            BP.set_motor_dps(BP.PORT_B, 0)
+            BP.set_motor_dps(BP.PORT_C, 0)
 
 
         except KeyboardInterrupt:
             self.reset()
 
-    def gyroTurn(self, speed, degrees):
+    def turnDeg(self, speed, degrees):
 
         direction = -1
         if degrees > 0:

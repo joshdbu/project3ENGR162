@@ -29,8 +29,10 @@ class GroveUltra:
             try:
                 raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
                 # print("raw is:", raw)
-                if raw > 200:
-                    pass
+                count = 0
+                while (raw > 300) & (count < 5):
+                    raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
+                    count = count + 1
                     
             except Exception:
                 pass

@@ -1,57 +1,34 @@
-from MapClass import Map
-from DumbMouseClass import DumbMouse
-from SmartMouseClass import SmartMouse
-from RobotClass import Robot
 import time
 from MazeRobotClass import MazeRobot
 
-# testMap = Map(2,0) 
-# tom = DumbMouse(testMap)
-# careBot =  SmartMouse(testMap)
 # self, x, y, h, w, d
-careBot = MazeRobot(1, 0, 9, 4, 7)
+print("Data entry:\n*Don't forget to start at zero and include bounderies :)*")
+xVal = int(input("Please enter maximum X value of maze: "))
+yVal = int(input("Please enter maximum Y value of maze: "))
+startXPos = int(input("Please enter Start X Pos of robot: "))
+careBot = MazeRobot(startXPos, 0, yVal, xVal, 7)
 
 time.sleep(5)
 
 # hi Josh
-# while True:
-#     print(careBot.explore())
-#     time.sleep(0.02)
-
-#careBot.squareUp(50)
-# while True:
-#     print(careBot.backLeftUltra.getDistance(), " | ", careBot.frontLeftUltra.getDistance())
-#careBot.getFrontUltraDist()
-# careBot.driveStraightUltra(200, 15)
-#careBot.gyroTurn(100,90)
-#careBot.driveStraightUntil(200, 20, 20)
-
 
 careBotMoves = []
 careBotPaths = []
 
-for i in range(0,1):
-    careBotMove, careBotPath = careBot.solveMaze()
-    careBotMoves.append(careBotMove)
-    careBotPaths.append(careBotPath)
-    print("here 2")
-    careBot.reset()
+careBotMove, careBotPath = careBot.solveMaze()
+careBotMoves.append(careBotMove)
+careBotPaths.append(careBotPath)
+    
+careBot.reset()
 
 minIndex = careBotMoves.index(min(careBotMoves))
-print("here 3")
-for row in careBotPaths[0]:
-    for value in row:
-        print(value, end=' ')
-    print()  # Add a newline after each row
-print("careBot took", careBotMoves[0], "turns")
 
-# try:
-#     for i in range(0,10):
-#         careBot.turnDeg(100, -90)
-#         careBot.driveStriaghtDistNoGyro(200, 15)
-#         careBot.turnDeg(100, 90)
-# except KeyboardInterrupt:
-#             careBot.reset()
-# careBot.driveStriaghtDistNoGyro(100, 100)
+for row in careBotPaths[0]:  # Iterate over each row in the first scenario
+    for i in range(len(row)):  # Iterate over each index in the row
+        print(int(row[i]), end='')  # Print the integer value without newline
+        if i < len(row) - 1:  # Check if it's not the last value in the row
+            print(',')  # Add comma and space
+    print()  # Move to the next line after printing each row
 
-# careBot.driveStraightDist(200, 15)
+print("careBot took", careBotMoves[0], "turns")  # Print the number of turns for the first scenario
+

@@ -12,7 +12,7 @@ class MazeRobot:
         self.depth = d
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
-        self.favorList = [3, 2, 0, 1] # ranked list of favorite paths, rn down, left, right, up
+        self.favorList = [2, 3, 0, 1] # ranked list of favorite paths, rn down, left, right, up
         # self.favorList = [3, 2, 0, 1] # ranked list of favorite paths
         self.unit = 40 # grid unit distance in centimeters
         self.wallDist = 12 # distance to stop from forward wall
@@ -27,7 +27,8 @@ class MazeRobot:
         path = self.decidePath(data)
         # print("path is", path)
         # print("heading is", self.heading)
-        self.updateFavor()
+        # self.updateFavor()
+        print("path is 0 is left, 1 is up, 2 is right, 3 is down\n", path)
         if len(path) > 1:
             for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
                 if self.favorList[i] in path:
@@ -103,10 +104,14 @@ class MazeRobot:
                 options[0] -= 2 # eliminates if mouse on left side
             
             if self.yPos != 0: # scores top option
+                print(options[1], "pre mm sub")
                 options[1] -= self.mouseMap[self.yPos - 1, self.xPos, 4] 
+                print(options[1], "pre wall subtraction")
                 options[1] -= data[1] * 2
+                print(options[1], "post wall subtraction")
             else:
                 options[1] -= 2
+                print("is this killing us? if print then yes", self.xPos, self.yPos)
             
             if self.xPos != self.width - 1: # scores right option
                 options[2] -= self.mouseMap[self.yPos, self.xPos + 1, 4] 
@@ -162,7 +167,7 @@ class MazeRobot:
             print("")
             move += 1
         path = [[row[4] for row in column] for column in self.mouseMap]
-        path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
+        # path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
         
         self.reset()
         print("do we get here?")
@@ -173,6 +178,7 @@ class MazeRobot:
         walls = self.careBot.explore()
         # print
         if walls[0] == 1:
+            # pass
             self.careBot.squareUp()
 
             # leftWallDist = 0.5 * (self.careBot.backLeftUltra.getDistance() + self.careBot.frontLeftUltra.getDistance())
