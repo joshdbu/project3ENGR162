@@ -237,6 +237,7 @@ class MazeRobot:
         magReading = self.mag.Mag_Read()
         
         if IRReading > 60: #IR sensor reading from 20 cm away
+            print(IRReading)
             if self.heading == 0:
                 self.MouseMap[self.yPos, self.xPos - 1, 5] = IRReading
             elif self.heading == 1:
@@ -247,6 +248,7 @@ class MazeRobot:
                 self.MouseMap[self.yPos + 1, self.xPos, 5] = IRReading
                 
         elif magReading[0] > 4 and magReading[1] > 10: #this needs to be confirmed
+            print(magReading)
             if self.heading == 0:
                 self.MouseMap[self.yPos, self.xPos - 1, 6] = magReading
             elif self.heading == 1:
