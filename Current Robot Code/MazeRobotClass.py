@@ -92,7 +92,9 @@ class MazeRobot:
             if (self.xPos == self.startX) & (self.yPos == self.startY + 1):
                 moves.append(3) # hard code to not make robot leave maze when it gets in
             else:
+                
                 moves.append(back) # when in a dead end, this will give direction of next move
+                self.mouseMap[self.yPos, self.xPos, 4] += 1 # added 4/17 to stop double cycling in single dead ends
         
         else:
             # junction reached
