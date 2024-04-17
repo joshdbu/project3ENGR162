@@ -1,6 +1,7 @@
 import numpy as np
 from RobotClass import Robot
-
+from MagClass import Magnet_Sensor
+from IRClass import IRSensor
 
 class MazeRobot:
     def __init__(self, x, y, h, w, d):
@@ -18,6 +19,8 @@ class MazeRobot:
         self.wallDist = 12 # distance to stop from forward wall
 
         self.careBot = Robot()
+        self.mag = Magnet_Sensor()
+        self.IR = IRSensor()
         
         
     def move(self):
@@ -228,3 +231,27 @@ class MazeRobot:
         self.xPos, self.oldX = self.startX, self.startX
         self.yPos, self.oldY = self.startY, self.startY
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
+
+    def avoidThings(self):
+        IRReading = self.IR.IR_Read()
+        magReading = self.mag.Mag_Read()
+        
+        if IRReading > 60: #IR sensor reading from 20 cm away
+            if self.heading == 0:
+                self.MouseMap[self.yPos, self.xPos - 1, 5] = IRReading
+            elif self.heading == 1:
+                self.MouseMap[self.yPos - 1, self.xPos, 5] = IRReading
+            elif self.heading == 2:
+                self.MouseMap[self.yPos, self.xPos + 1, 5] = IRReading
+            elif self.heading == 3:
+                self.MouseMap[self.yPos + 1, self.xPos, 5] = IRReading
+                
+        elif magReading[0] > 4 and magReading[1] > 10: #this needs to be confirmed
+            if self.heading == 0:
+                self.MouseMap[self.yPos, self.xPos - 1, 6] = magReading
+            elif self.heading == 1:
+                self.MouseMap[self.yPas - 1, self.xPos, 6] = magReading
+            elif self.heading == 2:
+                self.MouseMap[self.yPos, self.xPos + 1, 6] = magReading
+            elif self.heading == 3:
+                self.MouseMap[self.yPos + 1, self.xPos, 6] = magReading
