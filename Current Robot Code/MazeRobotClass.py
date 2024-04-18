@@ -45,7 +45,7 @@ class MazeRobot:
             choice = path[0]
         
         if self.heading == choice:
-            self.drive()
+            self.drive(False)
             self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
             # print("going straight")
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
@@ -56,7 +56,7 @@ class MazeRobot:
             self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
             
             # robot turn left 90
-            self.drive()
+            self.drive(False)
         elif (self.heading + 1 == choice) | (self.heading - 3 == choice):
             self.heading = choice
             self.careBot.gyroTurn(150, -90)
@@ -64,15 +64,16 @@ class MazeRobot:
             self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
             # print("going straight")
             # robot turn right 90
-            self.drive()
+            self.drive(False)
         else:
-            self.heading = choice
-            self.careBot.gyroTurn(150, 180)
+            # self.heading = choice
+            # self.careBot.gyroTurn(150, 180)
             # print("turning aorund")
-            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-            # print("turning right")
-            # robot turn 180
-            self.drive()
+            # self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
+            # # print("turning right")
+            # # robot turn 180
+            self.careBot.driveStraightDist(-speed, -self.unit)
+            self.drive(True)
         
     def decidePath(self, data):
         options = [ 2, 2, 2, 2 ] # start at 2, decrease depending on criteria, if reaches zero its a no go
@@ -150,18 +151,30 @@ class MazeRobot:
         return moves
 
     
-    def drive(self):
+    def drive(self, flag):
         self.oldY = self.yPos
         self.oldX = self.xPos
         
         if self.heading == 0:    
-            self.xPos -= 1
+            if not flag:
+                self.xPos -= 1
+            else:
+                self.xPos += 1
         elif self.heading == 1:
-            self.yPos -= 1
+            if not flag:  
+                self.yPos -= 1
+            else:
+                self.yPos += 1
         elif self.heading == 2:
-            self.xPos += 1
+            if not flag:
+                self.xPos += 1
+            else:
+                self.xPos -= 1
         elif self.heading == 3:
-            self.yPos += 1
+            if not flag:
+                self.yPos += 1
+            else:
+                self.yPos -= 1
 
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
 
@@ -171,7 +184,7 @@ class MazeRobot:
         move = 1
         print("is this updated?")
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
-        self.drive() # moves into maze
+        self.drive(False) # moves into maze
         self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
         while not ((self.xPos == 5) & (self.yPos == 5)):
         # while self.yPos < self.height - 1:
@@ -195,9 +208,11 @@ class MazeRobot:
 
         for row in obstacles:
             if row[0] == "High Temperature Heat Source":
-                path[0][row[3] - 1][row[4] - 1] = 2
+                path[row[3] - 1][row[4] - 1] = 2
             else:
-                path[0][row[3] - 1][row[4] - 1] = 3
+                path[row[3] - 1][row[4] - 1] = 3
+
+        print(obstacles)
 
         self.reset()
         # print("do we get here?")
@@ -232,14 +247,15 @@ class MazeRobot:
             self.mouseMap[self.yPos, self.xPos, i] = out[i] # had walls instead of out cost me hours
 
     def updateFavor(self):
+        pass
         # update = False
         # points = [[3,2],[2,0]] # enter dangerous points here. dangerous points are the path to obstacle, not necasarily obstacle itself
 
-        if (self.xPos == 3) & (self.yPos == 2):
-            self.favorList = [2, 0, 1]
-            print("we're cheating")
-        else:
-            self.favorList = [3, 2, 0, 1]
+        # if (self.xPos == 3) & (self.yPos == 2):
+        #     self.favorList = [2, 0, 1]
+        #     print("we're cheating")
+        # else:
+        #     self.favorList = [3, 2, 0, 1]
 
 
         # for i in range(len(points) - 1):
@@ -260,6 +276,7 @@ class MazeRobot:
         #     self.favorList = [3, 2, 0, 1] # confirms favorlist is reset if not at point
 
     def reset(self):
+        self.careBot.reset()
         self.xPos, self.oldX = self.startX, self.startX
         self.yPos, self.oldY = self.startY, self.startY
         self.mouseMap = np.zeros((self.height, self.width, self.depth))

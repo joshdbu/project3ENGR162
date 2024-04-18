@@ -165,7 +165,7 @@ class Robot:
             average = 0
             
 
-            while average < degrees - 3:
+            while abs(average) < abs(degrees - 3):
                 
                 
                 currentOffset = self.gyro.heading()
@@ -232,7 +232,7 @@ class Robot:
                 temp = self.frontUltra.getDistance()
                 # print(temp)
 
-                if average > degrees - 15:
+                if abs(average) > abs(degrees - 15):
                     flagGround = True
                     print("fg")
                 elif  temp < wallDist:
@@ -441,7 +441,8 @@ class Robot:
     
     def explore(self):
         # returns distances of surrounding walls
-
+        for i in range(5):
+            self.ultraWarmUp()
         walls = []
         walls.append(0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance()))
         walls.append(self.frontUltra.getDistance())
@@ -449,7 +450,7 @@ class Robot:
         walls.append(0) # we just came from this direction
         print("\nwalls are", walls)
         for i in range(0, len(walls)):
-            if (walls[i] < 20) & (walls[i] != 0):
+            if (walls[i] < 30) & (walls[i] != 0):
                 walls[i] = 1
             else:
                 walls[i] = 0

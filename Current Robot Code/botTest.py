@@ -27,12 +27,12 @@ time.sleep(5)
 # careBot.gyroTurn(150,-90)
 # careBot.driveStraightUntil(200,40,1)
 # careBot.driveStraightUntil(200,40,1)
-
-# careBot.driveStraightUntil(200,5,13)
+careBot.driveStraightDist(-200, -40)
+# careBot.driveStraightUntil(-200,-40,0.0001)
 # careBot.gyroTurn(150, 900)
-while True:
-    careBot.gyroTurn(150, -180)
-    time.sleep(2)
+# while True:
+#     print(careBot.rightUltra.distance())
+#     time.sleep(2)
 
 # while True:
 #     x = careBot.explore()
