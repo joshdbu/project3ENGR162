@@ -1,5 +1,6 @@
 import time
 from MazeRobotClass import MazeRobot
+import csv
 
 # self, x, y, h, w, d
 print("Data entry:\n*Don't forget to start at zero and include bounderies :)*")
@@ -27,16 +28,24 @@ for row in careBotPaths[0]:  # Iterate over each row in the first scenario
     for i in range(len(row)):  # Iterate over each index in the row
         print(int(row[i]), end='')  # Print the integer value without newline
         if i < len(row) - 1:  # Check if it's not the last value in the row
-            print(',')  # Add comma and space
+            print(',', end = '')  # Add comma and space
     print()  # Move to the next line after printing each row
 
-###################
-for row in obstacles:
-    if row[0] == "High Temperature Heat Source":
-        careBotPaths[0, row[3] - 1, row[4] - 1] = 2
-    else:
-        careBotPaths[0, row[3] - 1, row[4] - 1] = 3
-#################
+
+with open('careBotPaths.csv', 'w', newline='') as csvfile:
+    csvwriter = csv.writer(csvfile)
+    
+    # Writing metadata
+    csvwriter.writerow(["Team: 39"])
+    csvwriter.writerow(["Map: Demo"])
+    csvwriter.writerow(["Unit Length: 40"])
+    csvwriter.writerow(["Unit: cm"])
+    csvwriter.writerow(['Origin: (2', '0)'])
+    csvwriter.writerow(["Notes: This is the demo"])
+    
+    # Iterate over each row in the 2D list and write it to the CSV file
+    for row in careBotPaths[0]:
+        csvwriter.writerow(row)
 
 print("careBot took", careBotMoves[0], "turns")  # Print the number of turns for the first scenario
 

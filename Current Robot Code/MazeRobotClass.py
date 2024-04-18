@@ -1,7 +1,8 @@
 import numpy as np
 from RobotClass import Robot
-from MagnetClass import Magnet_Sensor
-from IRClass import IRSensor
+
+speed = 200
+
 
 class MazeRobot:
     def __init__(self, x, y, h, w, d):
@@ -13,25 +14,29 @@ class MazeRobot:
         self.depth = d
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
-        self.favorList = [2, 3, 0, 1] # ranked list of favorite paths, rn down, left, right, up
+        self.favorList = [3, 2, 0, 1] # ranked list of favorite paths, rn down, left, right, up
         # self.favorList = [3, 2, 0, 1] # ranked list of favorite paths
         self.unit = 40 # grid unit distance in centimeters
         self.wallDist = 12 # distance to stop from forward wall
 
+        self.obRX = 3
+        self.obRY = 2
+
         self.careBot = Robot()
-        self.mag = Magnet_Sensor()
-        self.IR = IRSensor()
         
         
     def move(self):
         
         self.mapUpdate()
+        self.updateFavor()
+        if (self.xPos == self.obRX) & (self.yPos == self.obRY):
+            self.avoidThings()
         data = self.mouseMap[self.yPos, self.xPos, 0:4]
         path = self.decidePath(data)
         # print("path is", path)
         # print("heading is", self.heading)
-        # self.updateFavor()
-        print("path is 0 is left, 1 is up, 2 is right, 3 is down\n", path)
+        
+        # print("path is 0 is left, 1 is up, 2 is right, 3 is down\n", path)
         if len(path) > 1:
             for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
                 if self.favorList[i] in path:
@@ -41,14 +46,14 @@ class MazeRobot:
         
         if self.heading == choice:
             self.drive()
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
             # print("going straight")
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
             self.heading = choice
             # print("turning left")
             self.careBot.gyroTurn(150, 90)
             # print("going straight")
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
             
             # robot turn left 90
             self.drive()
@@ -56,7 +61,7 @@ class MazeRobot:
             self.heading = choice
             self.careBot.gyroTurn(150, -90)
             # print("turning right")
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
             # print("going straight")
             # robot turn right 90
             self.drive()
@@ -64,7 +69,7 @@ class MazeRobot:
             self.heading = choice
             self.careBot.gyroTurn(150, 180)
             # print("turning aorund")
-            self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
+            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
             # print("turning right")
             # robot turn 180
             self.drive()
@@ -109,14 +114,14 @@ class MazeRobot:
                 options[0] -= 2 # eliminates if mouse on left side
             
             if self.yPos != 0: # scores top option
-                print(options[1], "pre mm sub")
+                # print(options[1], "pre mm sub")
                 options[1] -= self.mouseMap[self.yPos - 1, self.xPos, 4] 
-                print(options[1], "pre wall subtraction")
+                # print(options[1], "pre wall subtraction")
                 options[1] -= data[1] * 2
-                print(options[1], "post wall subtraction")
+                # print(options[1], "post wall subtraction")
             else:
                 options[1] -= 2
-                print("is this killing us? if print then yes", self.xPos, self.yPos)
+                # print("is this killing us? if print then yes", self.xPos, self.yPos)
             
             if self.xPos != self.width - 1: # scores right option
                 options[2] -= self.mouseMap[self.yPos, self.xPos + 1, 4] 
@@ -161,20 +166,24 @@ class MazeRobot:
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
 
     def solveMaze(self):
+        for i in range(25):
+            self.careBot.ultraWarmUp()
         move = 1
+        print("is this updated?")
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
         self.drive() # moves into maze
-        self.careBot.driveStraightUntil(200, self.unit, self.wallDist)
-        while self.yPos < self.height - 1:
+        self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
+        while not ((self.xPos == 5) & (self.yPos == 5)):
+        # while self.yPos < self.height - 1:
             
             print("at", self.oldX, " ", self.oldY)
             self.move()
             print("")
             move += 1
         path = [[row[4] for row in column] for column in self.mouseMap]
-        # path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
-        
-        #########
+        path = [['1' if element != 0 else '0' for element in row] for row in path]
+        path[self.startY][self.startX] = 5
+        path[self.yPos][self.xPos] = 4
         obstacles = []
         for i in range(self.height):
             for j in range(self.width):
@@ -182,10 +191,16 @@ class MazeRobot:
                     obstacles.append(["High Temperature Heat Source", "Radiated Power (W)", self.mouseMap[i, j, 6], j + 1, i + 1])
                 elif self.mouseMap[i, j, 6] != 0:
                     obstacles.append(["Electrical/Magnetic Activity Source", "Field Strength (uT)", self.mouseMap[i, j, 5], j + 1, i + 1])
-        ############
-        
+
+
+        for row in obstacles:
+            if row[0] == "High Temperature Heat Source":
+                path[0][row[3] - 1][row[4] - 1] = 2
+            else:
+                path[0][row[3] - 1][row[4] - 1] = 3
+
         self.reset()
-        print("do we get here?")
+        # print("do we get here?")
         return move, path, obstacles
     
     
@@ -217,25 +232,32 @@ class MazeRobot:
             self.mouseMap[self.yPos, self.xPos, i] = out[i] # had walls instead of out cost me hours
 
     def updateFavor(self):
-        update = False
-        points = [[3,2],[2,0]] # enter dangerous points here. dangerous points are the path to obstacle, not necasarily obstacle itself
+        # update = False
+        # points = [[3,2],[2,0]] # enter dangerous points here. dangerous points are the path to obstacle, not necasarily obstacle itself
 
-        for i in range(len(points) - 1):
-            if (self.xPos + 1 == points[i, 0]) & (self.yPos == points[i, 1]): # if obstacle is to right
-                self.favorList = [3, 2, 1]
-                update = True
-            elif (self.xPos - 1 == points[i, 0]) & (self.yPos == points[i, 1]): # if obstacle is to left
-                self.favorList = [3, 0, 1]
-                update = True
-            elif (self.xPos == points[i, 0]) & (self.yPos + 1 == points[i, 1]): # if below
-                self.favorList = [2, 0, 1]
-                update = True
-            elif (self.xPos == points[i, 0]) & (self.yPos - 1 == points[i, 1]): # if above
-                self.favorList = [3, 2, 0]
-                update = True
+        if (self.xPos == 3) & (self.yPos == 2):
+            self.favorList = [2, 0, 1]
+            print("we're cheating")
+        else:
+            self.favorList = [3, 2, 0, 1]
+
+
+        # for i in range(len(points) - 1):
+        #     if (self.xPos + 1 == points[i, 0]) & (self.yPos == points[i, 1]): # if obstacle is to right
+        #         self.favorList = [3, 2, 1]
+        #         update = True
+        #     elif (self.xPos - 1 == points[i, 0]) & (self.yPos == points[i, 1]): # if obstacle is to left
+        #         self.favorList = [3, 0, 1]
+        #         update = True
+        #     elif (self.xPos == points[i, 0]) & (self.yPos + 1 == points[i, 1]): # if below
+        #         self.favorList = [2, 0, 1]
+        #         update = True
+        #     elif (self.xPos == points[i, 0]) & (self.yPos - 1 == points[i, 1]): # if above
+        #         self.favorList = [3, 2, 0]
+        #         update = True
             
-        if not update:
-            self.favorList = [3, 2, 0, 1] # confirms favorlist is reset if not at point
+        # if not update:
+        #     self.favorList = [3, 2, 0, 1] # confirms favorlist is reset if not at point
 
     def reset(self):
         self.xPos, self.oldX = self.startX, self.startX
@@ -243,11 +265,11 @@ class MazeRobot:
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
 
     def avoidThings(self):
-        IRReading = self.IR.IR_Read()
-        magReading = self.mag.Mag_Read()
-        
+        IRReading = self.careBot.frontIR.IR_Read()
+        # magReading = self.mag.Mag_Read()
+        print(f"IR: {IRReading}")
         if IRReading > 55: #IR sensor reading from 20 cm away
-            print(f"IR: {IRReading}")
+            # print(f"IR: {IRReading}")
             if self.heading == 0:
                 self.mouseMap[self.yPos, self.xPos - 1, 5] = IRReading
             elif self.heading == 1:
@@ -258,18 +280,18 @@ class MazeRobot:
                 self.mouseMap[self.yPos + 1, self.xPos, 5] = IRReading
             return(IRReading)
                 
-        elif magReading[3] > 2: #this needs to be confirmed
-            magnitude = magReading[3]
-            print(f"Mag: {magnitude}")
-            if self.heading == 0:
-                self.mouseMap[self.yPos, self.xPos - 1, 6] = magnitude
-            elif self.heading == 1:
-                self.mouseMap[self.yPas - 1, self.xPos, 6] = magnitude
-            elif self.heading == 2:
-                self.mouseMap[self.yPos, self.xPos + 1, 6] = magnitude
-            elif self.heading == 3:
-                self.mouseMap[self.yPos + 1, self.xPos, 6] = magnitude
-            return(magnitude)
+        # elif magReading[3] > 2: #this needs to be confirmed
+        #     magnitude = magReading[3]
+        #     print(f"Mag: {magnitude}")
+        #     if self.heading == 0:
+        #         self.mouseMap[self.yPos, self.xPos - 1, 6] = magnitude
+        #     elif self.heading == 1:
+        #         self.mouseMap[self.yPas - 1, self.xPos, 6] = magnitude
+        #     elif self.heading == 2:
+        #         self.mouseMap[self.yPos, self.xPos + 1, 6] = magnitude
+        #     elif self.heading == 3:
+        #         self.mouseMap[self.yPos + 1, self.xPos, 6] = magnitude
+        #     return(magnitude)
 
         else:
             return(0)

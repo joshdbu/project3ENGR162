@@ -1,5 +1,5 @@
 from __future__ import print_function 
-import grovepi
+import grovepi # type: ignore
 from statistics import mean
 
 class IRSensor:
@@ -16,6 +16,7 @@ class IRSensor:
 
     #Read Function		
     def IR_Read(self): 
+        print("Reading IR Now")
         readList = []
         for j in range(10):
             temp = grovepi.analogRead(self.sensor1)

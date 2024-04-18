@@ -3,6 +3,7 @@ import brickpi3 # type: ignore
 from RobotGyro import Gyro
 from GroveUltrasonic import GroveUltra
 from EV3Ultrasonic import EV3Ultra
+from IRClass import IRSensor
 import math
 import sys
 import time
@@ -26,6 +27,7 @@ class Robot:
         self.frontLeftUltra = GroveUltra(self.leftFrontUP, self.numMeasure)
         self.backLeftUltra = GroveUltra(self.leftBackUP, self.numMeasure)
         self.rightUltra = EV3Ultra(self.numMeasure)
+        self.frontIR = IRSensor()
 
         self.heading = self.gyro.heading()
         self.wheelDia = 4.07 
@@ -33,6 +35,7 @@ class Robot:
     
     def gyroTurn(self, speed, degrees): # this function usless now?
         # dia = float(input("dia"))
+        print("starting turn")
         dia = 2.35
         motorDeg = dia * degrees
         direction = motorDeg / abs(motorDeg)
@@ -63,6 +66,7 @@ class Robot:
             BP.set_motor_dps(BP.PORT_B, 0)
             BP.set_motor_dps(BP.PORT_C, 0)
 
+            print("turn done")
 
         except KeyboardInterrupt:
             self.reset()
@@ -441,7 +445,7 @@ class Robot:
         walls = []
         walls.append(0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance()))
         walls.append(self.frontUltra.getDistance())
-        walls.append(self.rightUltra.getDistance())
+        walls.append(0.5 * (self.rightUltra.getDistance() + self.rightUltra.getDistance()))
         walls.append(0) # we just came from this direction
         print("\nwalls are", walls)
         for i in range(0, len(walls)):
@@ -467,3 +471,4 @@ class Robot:
         b = self.backLeftUltra.getDistance()
         c = self.frontUltra.getDistance()
         d = self.rightUltra.getDistance()
+        time.sleep(0.05)
