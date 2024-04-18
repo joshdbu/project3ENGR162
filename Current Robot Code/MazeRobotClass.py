@@ -174,9 +174,19 @@ class MazeRobot:
         path = [[row[4] for row in column] for column in self.mouseMap]
         # path = [[' X ' if element != 0 else '   ' for element in row] for row in path]
         
+        #########
+        obstacles = []
+        for i in range(self.height):
+            for j in range(self.width):
+                if self.mouseMap[i, j, 5] != 0:
+                    obstacles.append(["High Temperature Heat Source", "Radiated Power (W)", self.mouseMap[i, j, 6], j + 1, i + 1])
+                elif self.mouseMap[i, j, 6] != 0:
+                    obstacles.append(["Electrical/Magnetic Activity Source", "Field Strength (uT)", self.mouseMap[i, j, 5], j + 1, i + 1])
+        ############
+        
         self.reset()
         print("do we get here?")
-        return move, path
+        return move, path, obstacles
     
     
     def mapUpdate(self):
