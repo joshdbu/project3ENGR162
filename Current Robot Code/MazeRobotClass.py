@@ -33,10 +33,7 @@ class MazeRobot:
             self.avoidThings()
         data = self.mouseMap[self.yPos, self.xPos, 0:4]
         path = self.decidePath(data)
-        # print("path is", path)
-        # print("heading is", self.heading)
-        
-        # print("path is 0 is left, 1 is up, 2 is right, 3 is down\n", path)
+
         if len(path) > 1:
             for i in range(len(self.favorList) - 1, -1, -1): # reverse indexes path through favorlist
                 if self.favorList[i] in path:
@@ -44,37 +41,30 @@ class MazeRobot:
         else:
             choice = path[0]
         
-        if self.heading == choice:
-            self.drive(False)
+        if self.heading == choice: # straight
             self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-            # print("going straight")
-        elif (self.heading - 1 == choice) | (self.heading + 3 == choice):
+            self.drive(False)
+
+        elif (self.heading - 1 == choice) | (self.heading + 3 == choice): #left
             self.heading = choice
-            # print("turning left")
             self.careBot.gyroTurn(150, 90)
-            # print("going straight")
             self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-            
-            # robot turn left 90
+            if self.careBot.frontUltra.getDistance() < 25: # added in 4/18, should square up post turns 
+                self.careBot.squareUp()
             self.drive(False)
-        elif (self.heading + 1 == choice) | (self.heading - 3 == choice):
+
+        elif (self.heading + 1 == choice) | (self.heading - 3 == choice): #right
             self.heading = choice
             self.careBot.gyroTurn(150, -90)
-            # print("turning right")
             self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-            # print("going straight")
-            # robot turn right 90
+            if self.careBot.frontUltra.getDistance() < 25: # added in 4/18, should square up post turns 
+                self.careBot.squareUp()
             self.drive(False)
-        else:
-            # self.heading = choice
-            # self.careBot.gyroTurn(150, 180)
-            # print("turning aorund")
-            # self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-            # # print("turning right")
-            # # robot turn 180
+        
+        else: #back up
             self.careBot.driveStraightDist(-speed, -self.unit)
             self.drive(True)
-        
+
     def decidePath(self, data):
         options = [ 2, 2, 2, 2 ] # start at 2, decrease depending on criteria, if reaches zero its a no go
         moves = [] # stores final list of potential moves
@@ -105,8 +95,7 @@ class MazeRobot:
                 moves.append(back) # when in a dead end, this will give direction of next move
                 self.mouseMap[self.yPos, self.xPos, 4] += 1 # added 4/17 to stop double cycling in single dead ends
         
-        else:
-            # junction reached
+        else: # junction reached
             
             if self.xPos != 0: # scores left option
                 options[0] -= self.mouseMap[self.yPos, self.xPos - 1, 4] # subtracts if left has been visited
@@ -115,14 +104,10 @@ class MazeRobot:
                 options[0] -= 2 # eliminates if mouse on left side
             
             if self.yPos != 0: # scores top option
-                # print(options[1], "pre mm sub")
                 options[1] -= self.mouseMap[self.yPos - 1, self.xPos, 4] 
-                # print(options[1], "pre wall subtraction")
                 options[1] -= data[1] * 2
-                # print(options[1], "post wall subtraction")
             else:
                 options[1] -= 2
-                # print("is this killing us? if print then yes", self.xPos, self.yPos)
             
             if self.xPos != self.width - 1: # scores right option
                 options[2] -= self.mouseMap[self.yPos, self.xPos + 1, 4] 
@@ -155,6 +140,7 @@ class MazeRobot:
         self.oldY = self.yPos
         self.oldX = self.xPos
         
+        # flagging stuff is for backwards driving
         if self.heading == 0:    
             if not flag:
                 self.xPos -= 1
@@ -187,8 +173,7 @@ class MazeRobot:
         self.drive(False) # moves into maze
         self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
         while not ((self.xPos == 5) & (self.yPos == 5)):
-        # while self.yPos < self.height - 1:
-            
+        # while self.yPos < self.height - 1: # for maze where exit at absolute bottom
             print("at", self.oldX, " ", self.oldY)
             self.move()
             print("")
@@ -215,24 +200,14 @@ class MazeRobot:
         print(obstacles)
 
         self.reset()
-        # print("do we get here?")
         return move, path, obstacles
     
     
     def mapUpdate(self):
         walls = self.careBot.explore()
-        # print
         if walls[0] == 1:
-            # pass
             self.careBot.squareUp()
 
-            # leftWallDist = 0.5 * (self.careBot.backLeftUltra.getDistance() + self.careBot.frontLeftUltra.getDistance())
-            # print("leftwall dist is:", leftWallDist)
-            # if leftWallDist < 7:
-            #     temp = self.wallDist - leftWallDist
-            #     self.careBot.strafe(1, 999, temp)
-            # elif leftWallDist > 17.5:
-            #     self.careBot.strafe(0, self.wallDist, 999)
         out = [0, 0, 0, 0]
         if self.heading == 0:
             out = [walls[1], walls[2], walls[3], walls[0]]
@@ -248,32 +223,12 @@ class MazeRobot:
 
     def updateFavor(self):
         pass
-        # update = False
-        # points = [[3,2],[2,0]] # enter dangerous points here. dangerous points are the path to obstacle, not necasarily obstacle itself
 
         # if (self.xPos == 3) & (self.yPos == 2):
         #     self.favorList = [2, 0, 1]
         #     print("we're cheating")
         # else:
         #     self.favorList = [3, 2, 0, 1]
-
-
-        # for i in range(len(points) - 1):
-        #     if (self.xPos + 1 == points[i, 0]) & (self.yPos == points[i, 1]): # if obstacle is to right
-        #         self.favorList = [3, 2, 1]
-        #         update = True
-        #     elif (self.xPos - 1 == points[i, 0]) & (self.yPos == points[i, 1]): # if obstacle is to left
-        #         self.favorList = [3, 0, 1]
-        #         update = True
-        #     elif (self.xPos == points[i, 0]) & (self.yPos + 1 == points[i, 1]): # if below
-        #         self.favorList = [2, 0, 1]
-        #         update = True
-        #     elif (self.xPos == points[i, 0]) & (self.yPos - 1 == points[i, 1]): # if above
-        #         self.favorList = [3, 2, 0]
-        #         update = True
-            
-        # if not update:
-        #     self.favorList = [3, 2, 0, 1] # confirms favorlist is reset if not at point
 
     def reset(self):
         self.careBot.reset()

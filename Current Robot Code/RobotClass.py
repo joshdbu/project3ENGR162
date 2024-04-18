@@ -34,7 +34,6 @@ class Robot:
         self.timeConst = 0.01
     
     def gyroTurn(self, speed, degrees): # this function usless now?
-        # dia = float(input("dia"))
         print("starting turn")
         dia = 2.35
         motorDeg = dia * degrees
@@ -43,10 +42,7 @@ class Robot:
         try:
 
             BP.offset_motor_encoder(BP.PORT_B, BP.get_motor_encoder(BP.PORT_B))
-            # BP.set_motor_limits(BP.PORT_B, 90, speed)
-
             BP.offset_motor_encoder(BP.PORT_C, BP.get_motor_encoder(BP.PORT_C))
-            # BP.set_motor_limits(BP.PORT_C, 90, speed) 
             temp = 0
             while temp < abs(motorDeg):
                 BP.set_motor_dps(BP.PORT_B, speed * direction)
@@ -55,9 +51,8 @@ class Robot:
 
             start = time.perf_counter()
             while (time.perf_counter() - start) < 3:
-                # self.gyro.printHeading()
+                
                 currentOffset = abs(motorDeg) - abs(temp)
-                # print(currentOffset)
                 BP.set_motor_dps(BP.PORT_B, gain * currentOffset * direction)
                 BP.set_motor_dps(BP.PORT_C, gain * -currentOffset * direction)
                 temp = 0.5 * (abs(BP.get_motor_encoder(BP.PORT_B)) + abs(BP.get_motor_encoder(BP.PORT_C)))
@@ -152,8 +147,6 @@ class Robot:
         
 
         try:
-            
-            # print("heading at begining of drive is", self.gyro.heading())
             start = time.perf_counter()
             while (time.perf_counter() - start) < self.timeConst:
                 pass
@@ -164,12 +157,8 @@ class Robot:
             gain2 = 15
             average = 0
             
-
-            while abs(average) < abs(degrees - 3):
-                
-                
+            while abs(average) < abs(degrees - 3):    
                 currentOffset = self.gyro.heading()
-                # self.gyro.printHeading()
 
                 BP.set_motor_dps(BP.PORT_B, speed - gain * currentOffset)
                 BP.set_motor_dps(BP.PORT_C, speed + gain * currentOffset)
@@ -179,7 +168,6 @@ class Robot:
 
             start = time.perf_counter()
             while (time.perf_counter() - start) < 2:
-                # self.gyro.printHeading()
                 currentOffset = degrees - average
                 BP.set_motor_dps(BP.PORT_B, gain2 * currentOffset)
                 BP.set_motor_dps(BP.PORT_C, gain2 * currentOffset)
@@ -189,16 +177,7 @@ class Robot:
             BP.set_motor_dps(BP.PORT_B, 0)
             BP.set_motor_dps(BP.PORT_C, 0)
             start = time.perf_counter()
-            
-            # while (time.perf_counter() - start) < self.timeConst:
-            #     pass
-            # # print("heading at end of drive is", self.gyro.heading())
-        
-            
-            
-           
-                
-        
+
         except KeyboardInterrupt:
             self.reset()
 
@@ -228,11 +207,10 @@ class Robot:
                 BP.set_motor_dps(BP.PORT_C, speed + gain * currentOffset)
 
                 average = (BP.get_motor_encoder(BP.PORT_B) + BP.get_motor_encoder(BP.PORT_C)) / 2
-                # print(average, " ", degrees - 3)
                 temp = self.frontUltra.getDistance()
                 # print(temp)
 
-                if abs(average) > abs(degrees - 15):
+                if (abs(average) > abs(degrees - 15)) & (temp > 20): #added stuff jb 4/18
                     flagGround = True
                     print("fg")
                 elif  temp < wallDist:
@@ -263,8 +241,6 @@ class Robot:
             BP.set_motor_dps(BP.PORT_C, 0)
             time.sleep(self.timeConst) # for reasons unknow to me this MUST be > 1. <= 1 stops folowing actions from executing? 
 
-           
-                
         
         except KeyboardInterrupt:
             self.reset()
@@ -364,49 +340,6 @@ class Robot:
             BP.set_motor_dps(BP.PORT_C, 0)
             
             self.gyro.reset()
-
-            
-
-            # dist = 0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance())
-            # print("dist is", dist)
-
-            # if (dist < 6):
-                
-            #     self.gyroTurn(100, -90)
-            #     self.driveStraightDist(100, abs(12 - dist))
-            #     self.gyroTurn(100, 90)
-
-            #     BP.set_motor_dps(BP.PORT_B, 0)
-            #     BP.set_motor_dps(BP.PORT_C, 0)
-
-            #     dist = 0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance())
-            #     print("dist is", dist)
-
-            # while True:
-            #     if abs(self.frontLeftUltra.getDistance() - self.backLeftUltra.getDistance()) < 2:
-            #         break
-            #     left = self.frontLeftUltra.getDistance()
-            #     right = self.backLeftUltra.getDistance()
-                
-            #     currentOffset = left - right
-            #     BP.set_motor_dps(BP.PORT_B, speed * (currentOffset / abs(currentOffset)))
-            #     BP.set_motor_dps(BP.PORT_C, speed * (-currentOffset / abs(currentOffset)))
-
-            # start = time.perf_counter()
-            # while (time.perf_counter() - start) < 4:
-                
-            #     left = self.frontLeftUltra.getDistance()
-            #     right = self.backLeftUltra.getDistance()
-                
-            #     currentOffset = left - right
-                
-            #     BP.set_motor_dps(BP.PORT_B, gain * currentOffset * 1)
-            #     BP.set_motor_dps(BP.PORT_C, gain * currentOffset * -1)
-             
-            # BP.set_motor_dps(BP.PORT_B, 0)
-            # BP.set_motor_dps(BP.PORT_C, 0)
-
-
         
         except KeyboardInterrupt:
             self.reset()
@@ -425,8 +358,6 @@ class Robot:
     def celebrate(self):
         try:
 
-            # BP.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
-            # BP.set_motor_limits(BP.PORT_A, 90, 100) 
             start = time.perf_counter()
             while (time.perf_counter() - start) <0.5:
                 
