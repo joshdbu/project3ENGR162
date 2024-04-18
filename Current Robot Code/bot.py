@@ -30,5 +30,13 @@ for row in careBotPaths[0]:  # Iterate over each row in the first scenario
             print(',')  # Add comma and space
     print()  # Move to the next line after printing each row
 
+###################
+for row in obstacles:
+    if row[0] == "High Temperature Heat Source":
+        careBotPaths[0, row[3] - 1, row[4] - 1] = 2
+    else:
+        careBotPaths[0, row[3] - 1, row[4] - 1] = 3
+#################
+
 print("careBot took", careBotMoves[0], "turns")  # Print the number of turns for the first scenario
 
