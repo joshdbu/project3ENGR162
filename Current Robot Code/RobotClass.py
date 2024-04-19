@@ -4,6 +4,7 @@ from RobotGyro import Gyro
 from GroveUltrasonic import GroveUltra
 from EV3Ultrasonic import EV3Ultra
 from IRClass import IRSensor
+from MagnetClass import Magnet_Sensor
 import math
 import sys
 import time
@@ -20,7 +21,7 @@ class Robot:
         self.frontUltraPort = 7
         self.leftFrontUP = 6
         self.leftBackUP = 5
-        self.numMeasure = 2
+        self.numMeasure = 4
 
         self.gyro = Gyro()
         self.frontUltra = GroveUltra(self.frontUltraPort, self.numMeasure)
@@ -28,6 +29,7 @@ class Robot:
         self.backLeftUltra = GroveUltra(self.leftBackUP, self.numMeasure)
         self.rightUltra = EV3Ultra(self.numMeasure)
         self.frontIR = IRSensor()
+        self.magnet = Magnet_Sensor()
 
         self.heading = self.gyro.heading()
         self.wheelDia = 4.07 
@@ -197,7 +199,12 @@ class Robot:
             average = 0
             flagGround = False
             flagWall = False
+            groundStop = False
             self.ultraWarmUp()
+            temp = 0.5 * (self.frontUltra.getDistance()+ self.frontUltra.getDistance())
+            if temp > 55:
+                groundStop = True
+                print("no more read")
             while (not flagGround) &  (not flagWall):
 
                 currentOffset = self.gyro.heading()
@@ -207,13 +214,15 @@ class Robot:
                 BP.set_motor_dps(BP.PORT_C, speed + gain * currentOffset)
 
                 average = (BP.get_motor_encoder(BP.PORT_B) + BP.get_motor_encoder(BP.PORT_C)) / 2
-                temp = self.frontUltra.getDistance()
+                if not groundStop:
+                    temp = self.frontUltra.getDistance()
+                    print("reading:", temp)
                 # print(temp)
 
-                if (abs(average) > abs(degrees - 15)) & (temp > 20): #added stuff jb 4/18
+                if (abs(average) > abs(degrees - 15)) & (temp > 35): #added stuff jb 4/18
                     flagGround = True
                     print("fg")
-                elif  temp < wallDist:
+                elif  temp < wallDist + 1:
                     print("wall dist", temp)
                     flagWall = True
                     print("fw")
@@ -407,16 +416,16 @@ class Robot:
     
     def explore(self):
         # returns distances of surrounding walls
-        for i in range(5):
+        for i in range(10):
             self.ultraWarmUp()
         walls = []
         walls.append(0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance()))
-        walls.append(self.frontUltra.getDistance())
+        walls.append(0.5 * (self.frontUltra.getDistance() + self.frontUltra.getDistance()))
         walls.append(0.5 * (self.rightUltra.getDistance() + self.rightUltra.getDistance()))
         walls.append(0) # we just came from this direction
         print("\nwalls are", walls)
         for i in range(0, len(walls)):
-            if (walls[i] < 30) & (walls[i] != 0):
+            if (walls[i] < 35) & (walls[i] != 0):
                 walls[i] = 1
             else:
                 walls[i] = 0
@@ -438,4 +447,5 @@ class Robot:
         b = self.backLeftUltra.getDistance()
         c = self.frontUltra.getDistance()
         d = self.rightUltra.getDistance()
+        # print("bl:", b, "fl:", a, "f:", c, "r:", d)
         time.sleep(0.05)

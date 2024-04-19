@@ -37,4 +37,3 @@ class Magnet_Sensor:
     def calibrate(self):
         [xMag, yMag, zMag, magnitude] = self.Mag_Read()
         return[xMag, yMag]
-        

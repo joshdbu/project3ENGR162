@@ -1,17 +1,19 @@
 import numpy as np
 from RobotClass import Robot
 
-speed = 200
+speed = 250
 
 
 class MazeRobot:
-    def __init__(self, x, y, h, w, d):
+    def __init__(self, x, y, h, w, d, ex, ey):
         
         self.xPos, self.startX, self.oldX = x, x, x
         self.yPos, self.startY, self.oldY = y, y, y
         self.height = h
         self.width = w
         self.depth = d
+        self.endX = ex
+        self.endY = ey
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
         self.favorList = [3, 2, 0, 1] # ranked list of favorite paths, rn down, left, right, up
@@ -43,27 +45,35 @@ class MazeRobot:
         
         if self.heading == choice: # straight
             self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-            self.drive(False)
+            self.drive()
 
         elif (self.heading - 1 == choice) | (self.heading + 3 == choice): #left
             self.heading = choice
             self.careBot.gyroTurn(150, 90)
-            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-            if self.careBot.frontUltra.getDistance() < 25: # added in 4/18, should square up post turns 
+            if self.careBot.frontLeftUltra.getDistance() < 25: # added in 4/18, should square up post turns 
                 self.careBot.squareUp()
-            self.drive(False)
+            
+            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
+            self.drive()
 
         elif (self.heading + 1 == choice) | (self.heading - 3 == choice): #right
             self.heading = choice
             self.careBot.gyroTurn(150, -90)
-            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-            if self.careBot.frontUltra.getDistance() < 25: # added in 4/18, should square up post turns 
+            if self.careBot.frontLeftUltra.getDistance() < 25: # added in 4/18, should square up post turns 
                 self.careBot.squareUp()
-            self.drive(False)
+            
+            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
+            self.drive()
         
         else: #back up
-            self.careBot.driveStraightDist(-speed, -self.unit)
-            self.drive(True)
+            self.heading = choice
+            self.careBot.gyroTurn(150, -180)
+            if self.careBot.frontLeftUltra.getDistance() < 25: # added in 4/18, should square up post turns 
+                self.careBot.squareUp()
+            
+            self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
+            
+            self.drive()
 
     def decidePath(self, data):
         options = [ 2, 2, 2, 2 ] # start at 2, decrease depending on criteria, if reaches zero its a no go
@@ -135,49 +145,62 @@ class MazeRobot:
                 moves = semiSafeList
         return moves
 
-    
-    def drive(self, flag):
+    def drive(self):
         self.oldY = self.yPos
         self.oldX = self.xPos
         
-        # flagging stuff is for backwards driving
         if self.heading == 0:    
-            if not flag:
-                self.xPos -= 1
-            else:
-                self.xPos += 1
+            self.xPos -= 1
         elif self.heading == 1:
-            if not flag:  
-                self.yPos -= 1
-            else:
-                self.yPos += 1
+            self.yPos -= 1
         elif self.heading == 2:
-            if not flag:
-                self.xPos += 1
-            else:
-                self.xPos -= 1
+            self.xPos += 1
         elif self.heading == 3:
-            if not flag:
-                self.yPos += 1
-            else:
-                self.yPos -= 1
+            self.yPos += 1
+
+
+    # def drive(self, flag):
+    #     self.oldY = self.yPos
+    #     self.oldX = self.xPos
+        
+    #     # flagging stuff is for backwards driving
+    #     if self.heading == 0:    
+    #         if not flag:
+    #             self.xPos -= 1
+    #         else:
+    #             self.xPos += 1
+    #     elif self.heading == 1:
+    #         if not flag:  
+    #             self.yPos -= 1
+    #         else:
+    #             self.yPos += 1
+    #     elif self.heading == 2:
+    #         if not flag:
+    #             self.xPos += 1
+    #         else:
+    #             self.xPos -= 1
+    #     elif self.heading == 3:
+    #         if not flag:
+    #             self.yPos += 1
+    #         else:
+    #             self.yPos -= 1
 
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
 
     def solveMaze(self):
-        for i in range(25):
+        for i in range(10):
             self.careBot.ultraWarmUp()
         move = 1
         print("is this updated?")
         self.mouseMap[self.yPos, self.xPos, 4] += 1 # increments visits to this cell
-        self.drive(False) # moves into maze
+        self.drive() # moves into maze
         self.careBot.driveStraightUntil(speed, self.unit, self.wallDist)
-        while not ((self.xPos == 5) & (self.yPos == 5)):
-        # while self.yPos < self.height - 1: # for maze where exit at absolute bottom
-            print("at", self.oldX, " ", self.oldY)
+        while not ((self.xPos == self.endX) & (self.yPos == self.endY)):
+            print("at", self.xPos, " ", self.yPos)
             self.move()
             print("")
             move += 1
+        self.careBot.dropCargo(-1000, 800, True)
         path = [[row[4] for row in column] for column in self.mouseMap]
         path = [['1' if element != 0 else '0' for element in row] for row in path]
         path[self.startY][self.startX] = 5
@@ -224,11 +247,11 @@ class MazeRobot:
     def updateFavor(self):
         pass
 
-        # if (self.xPos == 3) & (self.yPos == 2):
-        #     self.favorList = [2, 0, 1]
-        #     print("we're cheating")
-        # else:
-        #     self.favorList = [3, 2, 0, 1]
+        if (self.xPos == 5) & (self.yPos == 2):
+            self.favorList = [3, 0, 2, 1]
+            print("we're cheating")
+        else:
+            self.favorList = [3, 0, 2, 1]
 
     def reset(self):
         self.careBot.reset()
@@ -238,7 +261,7 @@ class MazeRobot:
 
     def avoidThings(self):
         IRReading = self.careBot.frontIR.IR_Read()
-        # magReading = self.mag.Mag_Read()
+        magReading = self.careBot.magnet.Mag_Read()
         print(f"IR: {IRReading}")
         if IRReading > 25: #IR sensor reading from 20 cm away
             # print(f"IR: {IRReading}")
@@ -252,18 +275,19 @@ class MazeRobot:
                 self.mouseMap[self.yPos + 1, self.xPos, 5] = IRReading
             return(IRReading)
                 
-         elif magReading[3] > 1.5: #this needs to be confirmed
-             magnitude = magReading[3]
-             print(f"Mag: {magnitude}")
-             if self.heading == 0:
-                 self.mouseMap[self.yPos, self.xPos - 1, 6] = magnitude
-             elif self.heading == 1:
-                 self.mouseMap[self.yPas - 1, self.xPos, 6] = magnitude
-             elif self.heading == 2:
-                 self.mouseMap[self.yPos, self.xPos + 1, 6] = magnitude
-             elif self.heading == 3:
-                 self.mouseMap[self.yPos + 1, self.xPos, 6] = magnitude
-             return(magnitude)
+        elif magReading[3] > 1.5: #this needs to be confirmed
+            magnitude = magReading[3]
+            print(f"Mag: {magnitude}")
+            if self.heading == 0:
+                self.mouseMap[self.yPos, self.xPos - 1, 6] = magnitude
+            elif self.heading == 1:
+                self.mouseMap[self.yPas - 1, self.xPos, 6] = magnitude
+            elif self.heading == 2:
+                self.mouseMap[self.yPos, self.xPos + 1, 6] = magnitude
+            elif self.heading == 3:
+                self.mouseMap[self.yPos + 1, self.xPos, 6] = magnitude
+
+            return(magnitude)
 
         else:
             return(0)

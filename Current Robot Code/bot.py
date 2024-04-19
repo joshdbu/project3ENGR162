@@ -7,7 +7,11 @@ print("Data entry:\n*Don't forget to start at zero and include bounderies :)*")
 xVal = int(input("Please enter maximum X value of maze: "))
 yVal = int(input("Please enter maximum Y value of maze: "))
 startXPos = int(input("Please enter Start X Pos of robot: "))
-careBot = MazeRobot(startXPos, 0, yVal, xVal, 7)
+startYPos = int(input("Please enter Start Y Pos of robot: "))
+endX = int(input("Please enter end X value of maze: "))
+endY = int(input("Please enter end Y value of maze: "))
+
+careBot = MazeRobot(startXPos, startYPos, yVal, xVal, 7, endX, endY)
 
 time.sleep(5)
 

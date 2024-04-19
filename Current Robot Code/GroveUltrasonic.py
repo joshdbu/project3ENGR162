@@ -1,7 +1,7 @@
 from __future__ import print_function # use python 3 syntax but make it compatible with python 2
 import grovepi # type: ignore
 import time
-from statistics import mean
+from statistics import median
 
 
 class GroveUltra:
@@ -40,7 +40,7 @@ class GroveUltra:
                 vals.append(raw)
             time.sleep(0.02) # don't overload the i2c bus
         
-        self._dist = mean(vals)
+        self._dist = median(vals)
 
         return self._dist
     

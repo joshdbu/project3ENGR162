@@ -1,7 +1,7 @@
 from __future__ import print_function # use python 3 syntax but make it compatible with python 2
 from math import remainder
 from brickpi3 import BrickPi3, SensorError # type: ignore
-from statistics import mean
+from statistics import median
 import time
 
 bp = BrickPi3()
@@ -14,23 +14,26 @@ class EV3Ultra:
 
         self._distance = 0
         self._offset = 0
-        self.numMeasure = measure
+        self.numMeasure = 10
 
     def distance(self):
         try:
-            self._distance = bp.get_sensor(bp.PORT_1)
+            temp = 255
+            while(temp > 250) & (temp < 260):
+                temp = bp.get_sensor(bp.PORT_1)
             
         except SensorError:
             pass
 
-        return self._distance
+        return temp
 
     def getDistance(self):
         sum = []
         for i in range(1, self.numMeasure):
+            
             sum.append(self.distance())
             time.sleep(0.02)
-        avg = mean(sum)
+        avg = median(sum)
 
         return avg
         

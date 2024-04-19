@@ -8,7 +8,6 @@ class IRSensor:
        self.sensor2 = 9		# Pin 9 is A0 Port 
        grovepi.pinMode(self.sensor1,"INPUT")
        grovepi.pinMode(self.sensor2,"INPUT")
-       temp = self.IR_Read()
 
     # print function
     def IR_PrintValues(self):
