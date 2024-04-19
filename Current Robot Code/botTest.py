@@ -27,7 +27,11 @@ time.sleep(5)
 # careBot.gyroTurn(150,-90)
 # careBot.driveStraightUntil(200,40,1)
 # careBot.driveStraightUntil(200,40,1)
-careBot.driveStraightDist(-200, -40)
+# careBot.driveStraightDist(-200, -40)
+while True:
+    careBot.dropCargo(-1000, 800, True)
+    time.sleep(5)
+# careBot.dropCargo(2000, 700)
 # careBot.driveStraightUntil(-200,-40,0.0001)
 # careBot.gyroTurn(150, 900)
 # while True:

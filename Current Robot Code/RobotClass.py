@@ -369,6 +369,41 @@ class Robot:
 
         except KeyboardInterrupt:
             self.reset()
+
+    def dropCargo(self, speed, deg, recur):
+        
+        
+        try:
+            
+            if recur:
+                self.driveStraightDist(100,5)
+            BP.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
+            
+
+            gain = 10
+            average = 0
+            offset = 0
+            
+            start = time.perf_counter()
+            print("1")
+            while average < deg - 3:
+                BP.set_motor_dps(BP.PORT_A, speed)
+                
+                average = abs(BP.get_motor_encoder(BP.PORT_A))
+
+            BP.set_motor_dps(BP.PORT_A, 0)
+
+            if recur:
+                
+                self.driveStraightDist(-100,-5)
+                self.dropCargo(2000, deg, False)
+
+            
+
+        except KeyboardInterrupt:
+            self.reset()
+    
+
     
     def explore(self):
         # returns distances of surrounding walls
