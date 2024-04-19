@@ -240,7 +240,7 @@ class MazeRobot:
         IRReading = self.careBot.frontIR.IR_Read()
         # magReading = self.mag.Mag_Read()
         print(f"IR: {IRReading}")
-        if IRReading > 55: #IR sensor reading from 20 cm away
+        if IRReading > 25: #IR sensor reading from 20 cm away
             # print(f"IR: {IRReading}")
             if self.heading == 0:
                 self.mouseMap[self.yPos, self.xPos - 1, 5] = IRReading
@@ -252,18 +252,18 @@ class MazeRobot:
                 self.mouseMap[self.yPos + 1, self.xPos, 5] = IRReading
             return(IRReading)
                 
-        # elif magReading[3] > 2: #this needs to be confirmed
-        #     magnitude = magReading[3]
-        #     print(f"Mag: {magnitude}")
-        #     if self.heading == 0:
-        #         self.mouseMap[self.yPos, self.xPos - 1, 6] = magnitude
-        #     elif self.heading == 1:
-        #         self.mouseMap[self.yPas - 1, self.xPos, 6] = magnitude
-        #     elif self.heading == 2:
-        #         self.mouseMap[self.yPos, self.xPos + 1, 6] = magnitude
-        #     elif self.heading == 3:
-        #         self.mouseMap[self.yPos + 1, self.xPos, 6] = magnitude
-        #     return(magnitude)
+         elif magReading[3] > 1.5: #this needs to be confirmed
+             magnitude = magReading[3]
+             print(f"Mag: {magnitude}")
+             if self.heading == 0:
+                 self.mouseMap[self.yPos, self.xPos - 1, 6] = magnitude
+             elif self.heading == 1:
+                 self.mouseMap[self.yPas - 1, self.xPos, 6] = magnitude
+             elif self.heading == 2:
+                 self.mouseMap[self.yPos, self.xPos + 1, 6] = magnitude
+             elif self.heading == 3:
+                 self.mouseMap[self.yPos + 1, self.xPos, 6] = magnitude
+             return(magnitude)
 
         else:
             return(0)
