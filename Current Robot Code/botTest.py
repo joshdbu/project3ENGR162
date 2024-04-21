@@ -28,9 +28,12 @@ time.sleep(5)
 # careBot.driveStraightUntil(200,40,1)
 # careBot.driveStraightUntil(200,4000,12)
 # careBot.driveStraightDist(-200, -40)
+# while True:
+#     careBot.explore()
 while True:
-    careBot.explore()
-    
+    careBot.turnUltra(-98)
+    time.sleep(0.25)
+    careBot.turnUltra(98)
 
 
 # careBot.dropCargo(2000, 700)

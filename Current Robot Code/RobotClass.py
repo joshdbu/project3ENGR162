@@ -21,13 +21,13 @@ class Robot:
         self.frontUltraPort = 7
         self.leftFrontUP = 6
         self.leftBackUP = 5
-        self.numMeasure = 4
+        self.numMeasure = 10
 
         self.gyro = Gyro()
         self.frontUltra = GroveUltra(self.frontUltraPort, self.numMeasure)
         self.frontLeftUltra = GroveUltra(self.leftFrontUP, self.numMeasure)
         self.backLeftUltra = GroveUltra(self.leftBackUP, self.numMeasure)
-        self.rightUltra = EV3Ultra(self.numMeasure)
+        # self.rightUltra = EV3Ultra(self.numMeasure)
         self.frontIR = IRSensor()
         self.magnet = Magnet_Sensor()
 
@@ -416,16 +416,18 @@ class Robot:
     
     def explore(self):
         # returns distances of surrounding walls
-        for i in range(10):
-            self.ultraWarmUp()
+        
+        self.ultraWarmUp()
         walls = []
         walls.append(0.5 * (self.frontLeftUltra.getDistance() + self.backLeftUltra.getDistance()))
-        walls.append(0.5 * (self.frontUltra.getDistance() + self.frontUltra.getDistance()))
-        walls.append(0.5 * (self.rightUltra.getDistance() + self.rightUltra.getDistance()))
+        walls.append(self.frontUltra.getDistance())
+        self.turnUltra(-98)
+        walls.append(self.frontUltra.getDistance()) # right
+        self.turnUltra(98)
         walls.append(0) # we just came from this direction
         print("\nwalls are", walls)
         for i in range(0, len(walls)):
-            if (walls[i] < 35) & (walls[i] != 0):
+            if (walls[i] < 25) & (walls[i] != 0):
                 walls[i] = 1
             else:
                 walls[i] = 0
@@ -446,6 +448,34 @@ class Robot:
         a = self.frontLeftUltra.getDistance()
         b = self.backLeftUltra.getDistance()
         c = self.frontUltra.getDistance()
-        d = self.rightUltra.getDistance()
+        # d = self.rightUltra.getDistance()
         # print("bl:", b, "fl:", a, "f:", c, "r:", d)
         time.sleep(0.05)
+
+    def turnUltra(self, deg):
+        print("starting turn")
+        motorDeg = deg
+        direction = motorDeg / abs(motorDeg)
+        gain = 15
+        try:
+
+            BP.offset_motor_encoder(BP.PORT_D, BP.get_motor_encoder(BP.PORT_D))
+            temp = 0
+            while temp < abs(motorDeg) - 10:
+                BP.set_motor_dps(BP.PORT_D, 200 * direction)
+                temp = abs(BP.get_motor_encoder(BP.PORT_D))
+
+            start = time.perf_counter()
+            while (time.perf_counter() - start) < 1:
+                
+                currentOffset = abs(motorDeg) - abs(temp)
+                BP.set_motor_dps(BP.PORT_D, gain * currentOffset * direction)
+                temp = abs(BP.get_motor_encoder(BP.PORT_D))
+                
+
+            BP.set_motor_dps(BP.PORT_D, 0)
+
+            print("turn done")
+
+        except KeyboardInterrupt:
+            self.reset()

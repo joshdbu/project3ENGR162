@@ -30,7 +30,7 @@ class GroveUltra:
                 raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
                 # print("raw is:", raw)
                 count = 0
-                while (raw > 300) & (count < 5):
+                while ((raw > 300) | (raw < 3)) & (count < 10):
                     raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
                     count = count + 1
                     
@@ -41,6 +41,8 @@ class GroveUltra:
             time.sleep(0.02) # don't overload the i2c bus
         
         self._dist = median(vals)
+        if self._dist < 10:
+            print(vals)
 
         return self._dist
     
