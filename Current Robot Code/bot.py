@@ -26,9 +26,11 @@ careBotMoves.append(careBotMove)
 careBotPaths.append(careBotPath)
 careBotObstacles.append(careBotObstacle)
     
-careBot.reset()
+
 
 minIndex = careBotMoves.index(min(careBotMoves))
+
+print("paths v2", careBotMoves[0])
 
 for row in careBotPaths[0]:  # Iterate over each row in the first scenario
     for i in range(len(row)):  # Iterate over each index in the row
@@ -53,5 +55,6 @@ with open('careBotPaths.csv', 'w', newline='') as csvfile:
     for row in careBotPaths[0]:
         csvwriter.writerow(row)
 
-print("careBot took", careBotMoves[0], "turns")  # Print the number of turns for the first scenario
+# print("careBot took", careBotMoves[0], "turns")  # Print the number of turns for the first scenario
 
+careBot.reset()
