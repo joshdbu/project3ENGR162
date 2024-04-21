@@ -24,25 +24,29 @@ class GroveUltra:
     
     def getDistance(self):
         vals = []
+
         # print("get here1")
+        measure = 0
         for i in range(0,self.numMeasure): # halved from 10 to 5 to shorten cycle time
             try:
                 raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
                 # print("raw is:", raw)
                 count = 0
-                while ((raw > 300) | (raw < 3)) & (count < 10):
+                while ((raw > 400) | (raw < 5)) & (count < 10):
+                    # print("bad reading")
                     raw = grovepi.ultrasonicRead(self.ultrasonic_ranger)
                     count = count + 1
-                    
+                measure += count        
             except Exception:
                 pass
             else:
                 vals.append(raw)
             time.sleep(0.02) # don't overload the i2c bus
-        
+            
         self._dist = median(vals)
-        if self._dist < 10:
-            print(vals)
+        # print(self._dist, "count was:", measure)
+        # if self._dist < 10:
+        #     print("less than 10!--- ", vals)
 
         return self._dist
     

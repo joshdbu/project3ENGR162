@@ -21,7 +21,7 @@ class Robot:
         self.frontUltraPort = 7
         self.leftFrontUP = 6
         self.leftBackUP = 5
-        self.numMeasure = 10
+        self.numMeasure = 6
 
         self.gyro = Gyro()
         self.frontUltra = GroveUltra(self.frontUltraPort, self.numMeasure)

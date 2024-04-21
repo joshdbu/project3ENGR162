@@ -13,10 +13,10 @@ time.sleep(5)
 # while True:
 #     careBot.gyro.printHeading()
 # while True:
-#     careBot.frontUltra.printDistance()
+#     careBot.frontUltra.getDistance()
 
 
-# careBot.driveStraightUntil(200, 40, 1)
+# careBot.driveStraightUntil(200, 10, 12)
 # careBot.gyroTurn(150,-90)
 # careBot.driveStraightUntil(200,40,1)
 # careBot.gyroTurn(150,90)
@@ -29,14 +29,13 @@ time.sleep(5)
 # careBot.driveStraightUntil(200,4000,12)
 # careBot.driveStraightDist(-200, -40)
 # while True:
-#     careBot.explore()
-while True:
-    careBot.turnUltra(-98)
-    time.sleep(0.25)
-    careBot.turnUltra(98)
+# #     careBot.explore()
+# while True:
+#     careBot.turnUltra(-98)
+#     time.sleep(0.25)
+#     careBot.turnUltra(98)
 
-
-# careBot.dropCargo(2000, 700)
+careBot.dropCargo(-1000, 800, True)
 # careBot.driveStraightUntil(-200,-40,0.0001)
 # careBot.gyroTurn(150, 900)
 # while True:

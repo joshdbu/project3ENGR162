@@ -39,7 +39,6 @@ for row in careBotPaths[0]:  # Iterate over each row in the first scenario
             print(',', end = '')  # Add comma and space
     print()  # Move to the next line after printing each row
 
-
 with open('careBotPaths.csv', 'w', newline='') as csvfile:
     csvwriter = csv.writer(csvfile)
     
@@ -52,12 +51,16 @@ with open('careBotPaths.csv', 'w', newline='') as csvfile:
     csvwriter.writerow(["Notes: This is the demo"])
     
     # Iterate over each row in the 2D list and write it to the CSV file
-    for row in careBotPaths[0]:
-        csvwriter.writerow(row)
+    for row in careBotPaths[0][1:]:  # Exclude the first row
+        csvwriter.writerow(row[1:-1])  # Exclude the first and last columns
+
+    # for row in careBotPaths[0]:
+    #     csvwriter.writerow(row)
 
 with open('team39_hazards.csv', 'w', newline='') as csvfile:
+    print("here1")
     csvwriter = csv.writer(csvfile)
-    
+    print("here2")
     csvwriter.writerow(["Team: 39"])
     csvwriter.writerow(["Map: Demo"])
     csvwriter.writerow(["Origin: (2, 0)"])
@@ -66,9 +69,9 @@ with open('team39_hazards.csv', 'w', newline='') as csvfile:
     csvwriter.writerow(["Hazard Type", "Parameter of Interest", "Parameter Value", "Hazard X Coordinate", "Hazard Y Coordinate"])
     
     # Iterate over each row in the 2D list and write it to the CSV file
-    for row in careBotObstacle[0]:
+    for row in careBotObstacles[0]:
         csvwriter.writerow(row)
-
+    print("here3")
 # print("careBot took", careBotMoves[0], "turns")  # Print the number of turns for the first scenario
 
 careBot.reset()

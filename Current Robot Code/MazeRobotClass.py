@@ -19,7 +19,7 @@ class MazeRobot:
         self.favorList = [3, 2, 0, 1] # ranked list of favorite paths, rn down, left, right, up
         # self.favorList = [3, 2, 0, 1] # ranked list of favorite paths
         self.unit = 40 # grid unit distance in centimeters
-        self.wallDist = 12 # distance to stop from forward wall
+        self.wallDist = 15 # distance to stop from forward wall
 
         self.obRX = 3
         self.obRY = 2
@@ -203,24 +203,29 @@ class MazeRobot:
         self.careBot.dropCargo(-1000, 800, True)
         path = [[row[4] for row in column] for column in self.mouseMap]
         path = [['1' if element != 0 else '0' for element in row] for row in path]
+        print("path is", path)
         path[self.startY][self.startX] = 5
         path[self.yPos][self.xPos] = 4
         obstacles = []
+        # hardcoded hazards
+        # self.mouseMap[4, 1, 6] = 150.23
+        # self.mouseMap[4, 1, 5] = 70.2
         for i in range(self.height):
             for j in range(self.width):
                 if self.mouseMap[i, j, 5] != 0:
-                    obstacles.append(["High Temperature Heat Source", "Radiated Power (W)", self.mouseMap[i, j, 6], j + 1, i + 1])
+                    obstacles.append(["High Temperature Heat Source", "Radiated Power (W)", self.mouseMap[i, j, 5], j, i])
+                    self.mouseMap[i, j, 4] = 2                
                 elif self.mouseMap[i, j, 6] != 0:
-                    obstacles.append(["Electrical/Magnetic Activity Source", "Field Strength (uT)", self.mouseMap[i, j, 5], j + 1, i + 1])
-
+                    obstacles.append(["Electrical/Magnetic Activity Source", "Field Strength (uT)", self.mouseMap[i, j, 6], j, i])
+                    self.mouseMap[i, j, 4] = 3
 
         for row in obstacles:
             if row[0] == "High Temperature Heat Source":
-                path[row[3] - 1][row[4] - 1] = 2
+                path[row[3]][row[4]] = 2
             else:
-                path[row[3] - 1][row[4] - 1] = 3
+                path[row[3]][row[4]] = 3
 
-        print(obstacles)
+        # print(obstacles)
 
         self.reset()
         return move, path, obstacles
@@ -247,14 +252,14 @@ class MazeRobot:
     def updateFavor(self):
         pass
 
-        if (self.xPos == 5) & (self.yPos == 2):
-            self.favorList = [3, 0, 2, 1]
+        if (self.xPos == 6) & (self.yPos == 4):
+            self.favorList = [1]
             print("we're cheating")
         else:
             self.favorList = [3, 0, 2, 1]
 
     def reset(self):
-        self.careBot.reset()
+        # self.careBot.reset()
         self.xPos, self.oldX = self.startX, self.startX
         self.yPos, self.oldY = self.startY, self.startY
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
