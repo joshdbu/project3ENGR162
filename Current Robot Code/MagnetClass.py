@@ -13,7 +13,7 @@ class Magnet_Sensor:
     # print function
     def Mag_PrintValues(self):
         [xMag, yMag, zMag, magnitude] = self.Mag_Read()
-        print ("X = " + xMag + "\tY = " + yMag + "\tZ = " + zMag);
+        print ("X = " + xMag + "\tY = " + yMag + "\tZ = " + zMag + "\tMagnitude = " + magnitude);
 
     #Read Function		
     def Mag_Read(self):
