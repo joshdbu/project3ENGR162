@@ -2,7 +2,6 @@ from __future__ import print_function # use python 3 syntax but make it compatib
 import brickpi3 # type: ignore
 from RobotGyro import Gyro
 from GroveUltrasonic import GroveUltra
-from EV3Ultrasonic import EV3Ultra
 from IRClass import IRSensor
 from MagnetClass import Magnet_Sensor
 import math
@@ -35,7 +34,7 @@ class Robot:
         self.wheelDia = 4.07 
         self.timeConst = 0.01
     
-    def gyroTurn(self, speed, degrees): # this function usless now?
+    def gyroTurn(self, speed, degrees): # this is the real turnDeg function
         print("starting turn")
         dia = 2.35
         motorDeg = dia * degrees
@@ -68,7 +67,7 @@ class Robot:
         except KeyboardInterrupt:
             self.reset()
 
-    def turnDeg(self, speed, degrees):
+    def turnDeg(self, speed, degrees): #this is actually gyro turn, ignore this function
 
         direction = -1
         if degrees > 0:
@@ -202,7 +201,7 @@ class Robot:
             groundStop = False
             self.ultraWarmUp()
             temp = 0.5 * (self.frontUltra.getDistance()+ self.frontUltra.getDistance())
-            if temp > 55:
+            if temp > 80:
                 groundStop = True
                 print("no more read")
             while (not flagGround) &  (not flagWall):
@@ -216,7 +215,7 @@ class Robot:
                 average = (BP.get_motor_encoder(BP.PORT_B) + BP.get_motor_encoder(BP.PORT_C)) / 2
                 if not groundStop:
                     temp = self.frontUltra.getDistance()
-                    print("reading:", temp)
+                    # print("reading:", temp)
                 # print(temp)
 
                 if (abs(average) > abs(degrees - 15)) & (temp > 35): #added stuff jb 4/18
@@ -338,7 +337,7 @@ class Robot:
                 
                 currentOffset = left - right
                 # print("left:", left, "right:", right, "offset:", currentOffset)
-                if abs(currentOffset) > 10:
+                if abs(currentOffset) > 6:
                     pass
                     print("error caught. current offset is:", currentOffset)
                 else:
@@ -388,26 +387,27 @@ class Robot:
                 self.driveStraightDist(100,5)
             BP.offset_motor_encoder(BP.PORT_A, BP.get_motor_encoder(BP.PORT_A))
             
-
             gain = 10
             average = 0
             offset = 0
             
             start = time.perf_counter()
-            print("1")
+            # print("1")
             while average < deg - 3:
                 BP.set_motor_dps(BP.PORT_A, speed)
                 
                 average = abs(BP.get_motor_encoder(BP.PORT_A))
-
             BP.set_motor_dps(BP.PORT_A, 0)
 
             if recur:
                 
                 self.driveStraightDist(-100,-5)
                 self.dropCargo(2000, deg, False)
-
             
+            if not recur:
+                for i in range(3):
+                    self.turnUltra(-98)
+                    self.turnUltra(98)
 
         except KeyboardInterrupt:
             self.reset()
@@ -437,10 +437,10 @@ class Robot:
         return walls
     
     def reset(self):
+        self.dropCargo(-1000, 800, True)
         print("\n\n\nRobot shutting down... :(\nStats:", round(time.perf_counter() - startTime, 2), "seconds of run time\n\n\n")
         BP.set_motor_dps(BP.PORT_B, 0)
         BP.set_motor_dps(BP.PORT_C, 0)
-        self.celebrate()
         BP.reset_all()
         sys.exit(1)
 
@@ -453,7 +453,7 @@ class Robot:
         time.sleep(0.05)
 
     def turnUltra(self, deg):
-        print("starting turn")
+        # print("starting turn")
         motorDeg = deg
         direction = motorDeg / abs(motorDeg)
         gain = 15
@@ -475,7 +475,7 @@ class Robot:
 
             BP.set_motor_dps(BP.PORT_D, 0)
 
-            print("turn done")
+            # print("turn done")
 
         except KeyboardInterrupt:
             self.reset()

@@ -17,12 +17,12 @@ class MazeRobot:
         self.heading = 3 # heading of 0 is left, 1 is up, 2 is right, 3 is down
         self.mouseMap = np.zeros((self.height, self.width, self.depth))
         self.favorList = [3, 2, 0, 1] # ranked list of favorite paths, rn down, left, right, up
-        # self.favorList = [3, 2, 0, 1] # ranked list of favorite paths
+        # self.favorList = [2, 3, 0, 1] # ranked list of favorite paths
         self.unit = 40 # grid unit distance in centimeters
         self.wallDist = 15 # distance to stop from forward wall
 
-        self.obRX = 3
-        self.obRY = 2
+        self.obRX = 2
+        self.obRY = 5
 
         self.careBot = Robot()
         
@@ -203,7 +203,7 @@ class MazeRobot:
         self.careBot.dropCargo(-1000, 800, True)
         path = [[row[4] for row in column] for column in self.mouseMap]
         path = [['1' if element != 0 else '0' for element in row] for row in path]
-        print("path is", path)
+        # print("path is", path)
         path[self.startY][self.startX] = 5
         path[self.yPos][self.xPos] = 4
         obstacles = []
@@ -252,11 +252,11 @@ class MazeRobot:
     def updateFavor(self):
         pass
 
-        if (self.xPos == 6) & (self.yPos == 4):
+        if (self.xPos == -1) & (self.yPos == -1):
             self.favorList = [1]
             print("we're cheating")
         else:
-            self.favorList = [3, 0, 2, 1]
+            self.favorList = [3, 2, 0, 1]
 
     def reset(self):
         # self.careBot.reset()
@@ -267,9 +267,9 @@ class MazeRobot:
     def avoidThings(self):
         IRReading = self.careBot.frontIR.IR_Read()
         magReading = self.careBot.magnet.Mag_Read()
-        print(f"IR: {IRReading}")
+        # print(f"IR: {IRReading}")
         if IRReading > 25: #IR sensor reading from 20 cm away
-            # print(f"IR: {IRReading}")
+            print(f"IR: {IRReading}")
             if self.heading == 0:
                 self.mouseMap[self.yPos, self.xPos - 1, 5] = IRReading
             elif self.heading == 1:
@@ -280,7 +280,8 @@ class MazeRobot:
                 self.mouseMap[self.yPos + 1, self.xPos, 5] = IRReading
             return(IRReading)
                 
-        elif magReading[3] > 1.5: #this needs to be confirmed
+        elif magReading[3]:
+        # elif magReading[3] > 1.5: 
             magnitude = magReading[3]
             print(f"Mag: {magnitude}")
             if self.heading == 0:

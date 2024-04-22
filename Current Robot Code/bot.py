@@ -4,12 +4,19 @@ import csv
 
 # self, x, y, h, w, d
 print("Data entry:\n*Don't forget to start at zero and include bounderies :)*")
-xVal = int(input("Please enter maximum X value of maze: "))
-yVal = int(input("Please enter maximum Y value of maze: "))
-startXPos = int(input("Please enter Start X Pos of robot: "))
-startYPos = int(input("Please enter Start Y Pos of robot: "))
-endX = int(input("Please enter end X value of maze: "))
-endY = int(input("Please enter end Y value of maze: "))
+# xVal = int(input("Please enter maximum X value of maze: "))
+# yVal = int(input("Please enter maximum Y value of maze: "))
+# startXPos = int(input("Please enter Start X Pos of robot: "))
+# startYPos = int(input("Please enter Start Y Pos of robot: "))
+# endX = int(input("Please enter end X value of maze: "))
+# endY = int(input("Please enter end Y value of maze: "))
+
+xVal = 7
+yVal = 9
+startXPos = 5
+startYPos = 0
+endX = 0
+endY = 7
 
 careBot = MazeRobot(startXPos, startYPos, yVal, xVal, 7, endX, endY)
 
@@ -51,16 +58,16 @@ with open('careBotPaths.csv', 'w', newline='') as csvfile:
     csvwriter.writerow(["Notes: This is the demo"])
     
     # Iterate over each row in the 2D list and write it to the CSV file
-    for row in careBotPaths[0][1:]:  # Exclude the first row
-        csvwriter.writerow(row[1:-1])  # Exclude the first and last columns
+    # for row in careBotPaths[0][1:]:  # Exclude the first row
+    #     csvwriter.writerow(row[1:-1])  # Exclude the first and last columns
 
-    # for row in careBotPaths[0]:
-    #     csvwriter.writerow(row)
+    for row in careBotPaths[0]:
+        csvwriter.writerow(row)
 
 with open('team39_hazards.csv', 'w', newline='') as csvfile:
-    print("here1")
+    # print("here1")
     csvwriter = csv.writer(csvfile)
-    print("here2")
+    # print("here2")
     csvwriter.writerow(["Team: 39"])
     csvwriter.writerow(["Map: Demo"])
     csvwriter.writerow(["Origin: (2, 0)"])
@@ -71,7 +78,7 @@ with open('team39_hazards.csv', 'w', newline='') as csvfile:
     # Iterate over each row in the 2D list and write it to the CSV file
     for row in careBotObstacles[0]:
         csvwriter.writerow(row)
-    print("here3")
+    # print("here3")
 # print("careBot took", careBotMoves[0], "turns")  # Print the number of turns for the first scenario
 
 careBot.reset()

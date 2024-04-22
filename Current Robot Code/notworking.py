@@ -16,6 +16,7 @@ while True:
         backLeft5 = grovepi.ultrasonicRead(5)
         frontLeft6 = grovepi.ultrasonicRead(6)
         front7 = grovepi.ultrasonicRead(7)
+        # time.sleep(2)
         print("bl:", backLeft5, "fl:", frontLeft6, "f:", front7)
 
     except Exception as e:
